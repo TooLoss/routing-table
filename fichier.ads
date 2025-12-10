@@ -14,6 +14,8 @@ package Fichier_Utils is
 
     function Lire_Fichier(Unbounded_String nom) return File_Type;
 
+    function Convertir_Stringlist_Intlist(Int_List list) return Int_List;
+
 private:
 
     type String_List is array(1..4) of Unbounded_String;
