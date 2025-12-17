@@ -16,7 +16,6 @@ package LCA is
 	procedure Enregistrer (LCA : in out T_Pile; Element : in T_Element) with
 		
 
-
 private
 
 	type T_Cellule;
