@@ -15,8 +15,6 @@ package Fichier_Utils is
 
     function Recuperer_Arguments(fichier : in File_Type) return Unbounded_String;
 
-    function Lire_Fichier(nom : in Unbounded_String) return File_Type;
-
     function Convertir_StringEntier(list : in Int_List) return Int_List;
 
 end Fichier_Utils;

@@ -44,7 +44,7 @@ begin
 end Get_Interface;
 
 
--- TODO Rendre generic 
+-- TODO Rendre generic  ?
 procedure Enregistrer_Route(ligne : in Unbounded_String, table : in out Table_Routage) is
     route: Route;
 begin
@@ -70,8 +70,12 @@ begin
             Trim(valeur, Both);
             valeur_table := Separer(valeur, " ");
             Enregistrer_Route(valeur_table, table);
+            exit when End_Of_File (Entree);
         end loop;
     exception
+        when End_Error =>
+            Put ("Blanc en surplus");
+            null;
     end;
     return table;
 end 
