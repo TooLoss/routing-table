@@ -6,14 +6,13 @@ package LCA is
 	type T_LCA is limited private;
 
 
-	procedure Initialiser (LCA : out T_Pile) with
-		Post => Est_Vide (LCA);
+	procedure Initialiser (LCA : out T_LCA);
 
 
-	function Est_Vide (LCA : in T_Pile) return Boolean;
+	function Est_Vide (LCA : in T_LCA) return Boolean;
 
 
-	procedure Enregistrer (LCA : in out T_Pile; Element : in T_Element) with
+	procedure Enregistrer (LCA : in out T_LCA; Element : in T_Element);
 		
 
 private

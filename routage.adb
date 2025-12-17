@@ -1,3 +1,12 @@
+procedure Creer_Route(la_route : out Route, ip : in IP_Adresse,
+    masque : in IP_Adresse, interface_route : in Unbounded_String);
+begin
+    la_route.Ip := ip;
+    la_route.Masque := masque;
+    la_route.Interface_Route := interface_route; 
+end Creer_Route;
+
+
 function Est_Valide(ip : in IP_Adresse, la_route : in Route) return Boolean is
     route_ip: IP_Adresse;
     route_masque: IP_Adresse;
@@ -22,7 +31,7 @@ end String_Vers_Ip;
 
 
 function Get_Interface(ip : in Unbounded_String,
-        table : in Table_Routage) return Unbounded_String is
+    table : in Table_Routage) return Unbounded_String is
     curseur_table: Table_Routage;
     route_actuel: Route;
     fit: Integer;
