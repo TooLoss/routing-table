@@ -1,4 +1,4 @@
-function Est_Valide(IP_Adresse ip, Route la_route) return Boolean is
+function Est_Valide(ip : in IP_Adresse, la_route : in Route) return Boolean is
     route_ip: IP_Adresse;
     route_masque: IP_Adresse;
 begin
@@ -8,7 +8,7 @@ begin
 end Est_Valide;
 
 
-function String_Vers_Ip(Unbounded_String ip_string) return IP_Adresse is
+function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse is
     ip_list: Int_List;
     ip: IP_Adresse;
 begin
@@ -21,8 +21,8 @@ begin
 end String_Vers_Ip;
 
 
-function Get_Interface(Unbounded_String ip,
-    Table_Routage table) return Unbounded_String is
+function Get_Interface(ip : in Unbounded_String,
+        table : in Table_Routage) return Unbounded_String is
     curseur_table: Table_Routage;
     route_actuel: Route;
     fit: Integer;
@@ -44,9 +44,34 @@ begin
 end Get_Interface;
 
 
-function Charger_Table_Routage(File_Type file) return Table_Routage is
+-- TODO Rendre generic 
+procedure Enregistrer_Route(ligne : in Unbounded_String, table : in out Table_Routage) is
+    route: Route;
+begin
+    route := new Route;
+    route.Ip := String_Vers_Ip(ligne(1));
+    route.Masque := String_vers_Ip(ligne(3));
+    route.Interface_Route := ligne(8);
+    Enregistrer(table, route);
+end Enregistrer_Route;
+
+
+function Charger_Table_Routage(file : in File_Type) return Table_Routage is
     table: Table_Routage;
+    numero_ligne: Integer;
+    valeur: Unbounded_String;
+    valeur_table: String_List;
 begin
     Initialiser(table);
-
+    begin
+        loop
+            numero_ligne := Integer(Line(file));
+            valeur := Get_Line(file); 
+            Trim(valeur, Both);
+            valeur_table := Separer(valeur, " ");
+            Enregistrer_Route(valeur_table, table);
+        end loop;
+    exception
+    end;
+    return table;
 end 

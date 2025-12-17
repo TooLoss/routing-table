@@ -12,13 +12,13 @@ package Routage is
 
     type Table_Routage is LCA_Routage.LCA;
 
-    function Est_Valide(IP_Adresse ip, Route la_route) return Boolean ;  	
+    function Est_Valide(ip : in IP_Adresse, la_route : in Route) return Boolean ;  	
 
-    function Get_Interface(Unbounded_String ip, Table_Routage table) return Unbounded_String;
+    function Get_Interface(ip : in Unbounded_String, table : in Table_Routage) return Unbounded_String;
 
-    function Charger_Table_Routage(File_Type file) return Table_Routage;
+    function Charger_Table_Routage(file : in File_Type) return Table_Routage;
 
-    function String_Vers_Ip(Unbounded_String ip_string) return IP_Adresse;
+    function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse;
 
 
 private:
