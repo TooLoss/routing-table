@@ -8,7 +8,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Fichier_Utils is
 
-    type String_List is array(1..10) of Unbounded_String;
+    type String_List is array(1..4) of Unbounded_String;
     type Int_List is array(1..4) of Integer;
 
     function Separer(line : in Unbounded_String, separateur : in Character) return String_List;

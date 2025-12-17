@@ -50,8 +50,8 @@ procedure Enregistrer_Route(ligne : in Unbounded_String, table : in out Table_Ro
 begin
     route := new Route;
     route.Ip := String_Vers_Ip(ligne(1));
-    route.Masque := String_vers_Ip(ligne(3));
-    route.Interface_Route := ligne(8);
+    route.Masque := String_vers_Ip(ligne(2));
+    route.Interface_Route := ligne(3);
     Enregistrer(table, route);
 end Enregistrer_Route;
 
