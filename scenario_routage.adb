@@ -1,13 +1,14 @@
-with Routage;          use Routage;
-with Ada.Text_IO;      use Ada.Text_IO;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Routage;           use Routage;
 with Fichier;           use Fichier;
+with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 procedure Scenario_Routage is
 
     Ip1 : IP_Adresse;
     Route0, Route1, Route2, Route3 : T_Route;
     Table : T_Table_Routage;
+    Founded_Interface : Unbounded_String;
 
 begin
 
@@ -76,6 +77,8 @@ begin
 
     Put_Line("Récupérer l'interface automatiquement");
     Put("Interface retourné doit être eth0: ");
-    Put_Line(To_String(Get_Interface(To_Unbounded_String("192.168.1.1"), Table)));
+    Founded_Interface := Get_Interface(Ip1, Table);
+    Put_Line(To_String(Get_Interface(Ip1, Table)));
+
 
 end Scenario_Routage;

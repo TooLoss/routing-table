@@ -15,8 +15,6 @@ package Fichier is
 
     function Separer(ligne : in Unbounded_String; separateur : in Character) return String_List;
 
-    function Recuperer_Arguments(fichier : in File_Type) return Unbounded_String;
-
     function Convertir_StringEntier(liste_string : in String_List) return Int_List;
 
 end Fichier;

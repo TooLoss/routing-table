@@ -23,12 +23,6 @@ package body Fichier is
     end Separer;
 
 
-    function Recuperer_Arguments(fichier : in File_Type) return Unbounded_String is
-    begin
-        return To_Unbounded_String("");
-    end Recuperer_Arguments;
-
-
     function Convertir_StringEntier(liste_string : in String_List) return Int_List is
         liste_entier: Int_List;
     begin
