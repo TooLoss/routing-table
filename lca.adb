@@ -14,7 +14,7 @@ package body LCA is
     end Est_vide;
 
 
-    procedure Enregistrer_Recursif (LCA : in out T_LCA; Element : in T_Element) is 
+    procedure Enregistrer (LCA : in out T_LCA; Element : in T_Element) is 
         nouvelle_LCA : T_LCA;
     begin 
         if Est_Vide(LCA) then 
@@ -25,9 +25,9 @@ package body LCA is
         elsif LCA.Element = Element then 
             raise Duplicate_Route_Error;
         else 
-            Enregistrer_Recursif(LCA.Suivant, Element);
+            Enregistrer(LCA.Suivant, Element);
         end if;
-    end Enregistrer_Recursif;
+    end Enregistrer;
 
 
     function Premier(LCA : in T_LCA) return T_LCA is
