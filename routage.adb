@@ -73,7 +73,6 @@ package body Routage is
         table: T_Table_Routage;
         numero_ligne: Integer;
         valeur: Unbounded_String;
-        valeur_table: String_List;
     begin
         Initialiser(table);
         begin
@@ -81,9 +80,8 @@ package body Routage is
                 numero_ligne := Integer(Line(file));
                 valeur := Get_Line(file); 
                 Trim(valeur, Both);
-                valeur_table := Separer(valeur, " ");
-                Enregistrer_Route(valeur_table, table);
-                exit when End_Of_File (Entree);
+                Enregistrer_Route(valeur, table);
+                exit when End_Of_File (file);
             end loop;
         exception
             when End_Error =>
@@ -91,6 +89,6 @@ package body Routage is
                 null;
         end;
         return table;
-    end 
+    end Charger_Table_Routage;
 
 end Routage;
