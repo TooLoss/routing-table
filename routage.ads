@@ -41,7 +41,7 @@ package Routage is
 
 private
 
-    type Route is
+    type T_Route is
         record
             Ip : Ip_Adresse;
             Masque : Ip_Adresse;

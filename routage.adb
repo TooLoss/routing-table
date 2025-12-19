@@ -1,20 +1,20 @@
 package body Routage is
 
-    procedure Creer_Route(la_route : out Route; ip : in IP_Adresse;
+    procedure Creer_Route(route : out T_Route; ip : in IP_Adresse;
         masque : in IP_Adresse; interface_route : in Unbounded_String) is
     begin
-        la_route.Ip := ip;
-        la_route.Masque := masque;
-        la_route.Interface_Route := interface_route; 
+        route.Ip := ip;
+        route.Masque := masque;
+        route.Interface_Route := interface_route; 
     end Creer_Route;
 
 
-    function Est_Valide(ip : in IP_Adresse; la_route : in Route) return Boolean is
+    function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean is
         route_ip: IP_Adresse;
         route_masque: IP_Adresse;
     begin
-        route_ip := la_route.Ip;
-        route_masque := la_route.Masque;
+        route_ip := route.Ip;
+        route_masque := route.Masque;
         return (ip and route_masque) = route_ip;
     end Est_Valide;
 
@@ -33,9 +33,9 @@ package body Routage is
 
 
     function Get_Interface(ip : in Unbounded_String;
-        table : in Table_Routage) return Unbounded_String is
+        table : in T_Table_Routage) return Unbounded_String is
         curseur_table: T_LCA;
-        route_actuel: Route;
+        route_actuel: T_Route;
         fit: Integer;
         return_interface: Unbounded_String;
     begin
@@ -56,21 +56,21 @@ package body Routage is
     end Get_Interface;
 
 
-    -- TODO Rendre generic  ?
-    procedure Enregistrer_Route(ligne : in Unbounded_String; table : in out Table_Routage) is
-        la_route: Route;
+    -- TODO Rendre generic car la place des éléments peuvent être différents
+    procedure Enregistrer_Route(ligne : in Unbounded_String; table : in out T_Table_Routage) is
+        route: T_Route;
         liste: String_List;
     begin
         liste := Separer(ligne, ' ');
-        la_route.Ip := String_Vers_Ip(liste(1));
-        la_route.Masque := String_vers_Ip(liste(2));
-        la_route.Interface_Route := liste(3);
+        route.Ip := String_Vers_Ip(liste(1));
+        route.Masque := String_vers_Ip(liste(2));
+        route.Interface_Route := liste(3);
         Enregistrer(table, route);
     end Enregistrer_Route;
 
 
-    function Charger_Table_Routage(file : in File_Type) return Table_Routage is
-        table: Table_Routage;
+    function Charger_Table_Routage(file : in File_Type) return T_Table_Routage is
+        table: T_Table_Routage;
         numero_ligne: Integer;
         valeur: Unbounded_String;
         valeur_table: String_List;
