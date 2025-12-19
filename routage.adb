@@ -33,7 +33,7 @@ package body Routage is
 
 
     function Get_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
-        return Unbounded_String;
+        return Unbounded_String is
         curseur_table: T_LCA;
         route_actuel: T_Route;
         fit: IP_Adresse;
@@ -53,7 +53,7 @@ package body Routage is
             curseur_table := Suivant(curseur_table);
         end loop;
         return return_interface;
-    end Get_Route;
+    end Get_Interface;
 
 
     procedure Initialiser_Table(table : out T_Table_Routage) is
@@ -83,7 +83,7 @@ package body Routage is
     end Enregistrer_Ligne;
 
 
-    procedure Charger_Table_Routage(table : out T_Table_Routage, file : in File_Type)
+    procedure Charger_Table_Routage(table : out T_Table_Routage; file : in File_Type) is
         numero_ligne: Integer;
         valeur: Unbounded_String;
     begin
@@ -102,7 +102,6 @@ package body Routage is
                 Put ("Blanc en surplus");
                 null;
         end;
-        return table;
     end Charger_Table_Routage;
 
 end Routage;
