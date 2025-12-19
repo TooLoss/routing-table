@@ -32,18 +32,18 @@ package body Routage is
     end String_Vers_Ip;
 
 
-    function Get_Interface(ip : in Unbounded_String;
-        table : in T_Table_Routage) return Unbounded_String is
+    function Get_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
+        return Unbounded_String;
         curseur_table: T_LCA;
         route_actuel: T_Route;
         fit: IP_Adresse;
-        return_interface: Unbounded_String;
+        return_interface : Unbounded_String;
     begin
         curseur_table := Premier(T_LCA(table)); 
         fit := 0;
         while not Est_Vide(curseur_table) loop
             route_actuel := Element(curseur_table); 
-            if Est_Valide(String_Vers_Ip(ip), route_actuel) and then
+            if Est_Valide(ip, route_actuel) and then
                     fit < route_actuel.Masque then
                 fit := route_actuel.Masque;
                 return_interface := route_actuel.Interface_Route;
@@ -53,7 +53,7 @@ package body Routage is
             curseur_table := Suivant(curseur_table);
         end loop;
         return return_interface;
-    end Get_Interface;
+    end Get_Route;
 
 
     procedure Initialiser_Table(table : out T_Table_Routage) is
@@ -83,8 +83,7 @@ package body Routage is
     end Enregistrer_Ligne;
 
 
-    function Charger_Table_Routage(file : in File_Type) return T_Table_Routage is
-        table: T_Table_Routage;
+    procedure Charger_Table_Routage(table : out T_Table_Routage, file : in File_Type)
         numero_ligne: Integer;
         valeur: Unbounded_String;
     begin

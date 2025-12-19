@@ -26,13 +26,12 @@ package Routage is
     -- Obtenir si une ip est associé à cette route;
     function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean;
 
-    -- Obtenir l'interface d'une ip correspondante dans la table de routage.
-    function Get_Interface(ip : in Unbounded_String;
-        table : in T_Table_Routage) return Unbounded_String with
-        Pre  => Length(ip) > 0; -- L'IP ne doit pas être une chaîne vide
+    -- Obtenir la route d'une ip correspondante dans la table de routage.
+    function Get_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
+        return Unbounded_String;
 
     -- Lire un fichier de la table de routage puis crée une liste chainé de Route.
-    function Charger_Table_Routage(file : in File_Type) return T_Table_Routage with
+    procedure Charger_Table_Routage(table : out T_Table_Routage; file : in File_Type) with
         Pre => Is_Open(file) and Mode(file) = In_File;
 
     -- Convertir une chaine IP x.x.x.x en type adresse IP
