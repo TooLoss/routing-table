@@ -104,4 +104,30 @@ package body Routage is
         end;
     end Charger_Table_Routage;
 
+
+    function Table_Vide(table : T_Table_Routage) return Boolean is
+    begin
+        return Est_Vide(table);
+    end Table_Vide;
+
+    --
+    -- Sous-programme Privés
+    --
+
+    function Masque_Valide(masque : IP_Adresse) return Boolean is
+        POIDS_FORT : constant IP_Adresse := 2 ** 31;
+        switch : Boolean := False;
+        bit : Boolean;
+    begin
+        for i in 1..31 loop
+            bit := ((masque * (2 ** (i-1))) and POIDS_FORT) /= 0;
+            if not bit then
+                switch := True;
+            elsif bit and switch then
+                return False;
+            end if;
+        end loop;
+        return True;
+    end Masque_Valide;
+
 end Routage;

@@ -14,6 +14,9 @@ package Routage is
     type T_Route is limited private;
     type T_Table_Routage is limited private;
 
+    -- Vérifie la validité du masque, des 1 puis 0 (optionel)
+    function Masque_Valide(masque : IP_Adresse) return Boolean;
+
     -- Creer une route avec l'ip, le masque et l'interface.
     procedure Creer_Route(
         route : out T_Route;
@@ -21,7 +24,7 @@ package Routage is
         masque : in IP_Adresse;
         interface_route : in Unbounded_String
     ) with
-        Pre => Length(interface_route) > 0;
+        Pre => Length(interface_route) > 0 and Masque_Valide(masque);
 
     -- Obtenir si une ip est associé à cette route;
     function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean;
@@ -37,12 +40,16 @@ package Routage is
     -- Convertir une chaine IP x.x.x.x en type adresse IP
     function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse;
 
+    -- Est ce que la table est vide ?
+    function Table_Vide(table : T_Table_Routage) return Boolean;
 
-    procedure Enregistrer_Route(table : in out T_Table_Routage; route : in T_Route);
+    -- Enregistrer une route dans la table
+    procedure Enregistrer_Route(table : in out T_Table_Routage; route : in T_Route) with
+        Post => not Table_Vide(table);
 
-
-    procedure Initialiser_Table(table : out T_Table_Routage);
-
+    -- Initaliser une table vide
+    procedure Initialiser_Table(table : out T_Table_Routage) with
+        Post => Table_Vide(table);
 
 private
 
@@ -51,7 +58,8 @@ private
             Ip : Ip_Adresse;
             Masque : Ip_Adresse;
             Interface_Route : Unbounded_String;
-        end record;
+        end record with
+        Type_Invariant => Masque_Valide(T_Route.masque);
 
     package LCA_Routage is
         new LCA (T_Element => T_Route);

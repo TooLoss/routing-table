@@ -1,6 +1,7 @@
 with Routage;           use Routage;
 with Fichier;           use Fichier;
 with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Integer_Text_IO;       use Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 procedure Scenario_Routage is
@@ -11,6 +12,29 @@ procedure Scenario_Routage is
     Founded_Interface : Unbounded_String;
 
 begin
+
+    Put_Line("Convertir String 0.0.0.255 en IP");
+    Ip1 := String_Vers_Ip(To_Unbounded_String("0.0.0.255"));
+    Put_Line(Integer'Image(Integer(Ip1))); 
+
+    Put_Line("Vérifier que le masque 0.0.255.255 est pas correct");
+    if Masque_Valide(String_Vers_Ip(To_Unbounded_String("0.0.255.255"))) then
+        Put_Line("Masque Valide");
+    else
+        Put_Line("Masque invalide");
+    end if;
+    Put_Line("Vérifier que le masque 255.0.0.255 est pas correct");
+    if Masque_Valide(String_Vers_Ip(To_Unbounded_String("255.0.0.255"))) then
+        Put_Line("Masque Valide");
+    else
+        Put_Line("Masque invalide");
+    end if;
+    Put_Line("Vérifier que le masque 255.255.0.0 est correct");
+    if Masque_Valide(String_Vers_Ip(To_Unbounded_String("255.255.0.0"))) then
+        Put_Line("Masque Valide");
+    else
+        Put_Line("Masque invalide");
+    end if;
 
     Put_Line("Conversion IP 192.168.1.1 en type IP_Adresse. Ip de destination.");
     Ip1 := String_Vers_Ip(To_Unbounded_String("192.168.1.1"));
