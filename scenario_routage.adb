@@ -3,7 +3,7 @@ with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Fichier;           use Fichier;
 
-procedure Routage_Scenario is
+procedure Scenario_Routage is
 
     Ip1 : IP_Adresse;
     Route1, Route2, Route3 : T_Route;
@@ -30,22 +30,21 @@ begin
         interface_route => To_Unbounded_String("eth2"));
 
     if Est_Valide(Ip1, Route1) then
-        Put_Line("Route 2 est valide");
+        Put_Line("Route 2 est valide. C'est attendu");
     else
-        Put_Line("Route 1 est invalide");
+        Put_Line("Route 1 est invalide. Erreur");
     end if;
 
     if Est_Valide(Ip1, Route2) then
-        Put_Line("Route 2 est valide");
+        Put_Line("Route 2 est valide. C'est attendu.");
     else
-        Put_Line("Route 2 est invalide");
+        Put_Line("Route 2 est invalide. Erreur");
     end if;
 
     if Est_Valide(Ip1, Route3) then
-        Put_Line("Route 3 est valide");
+        Put_Line("Route 3 est valide. Erreur");
     else
-        Put_Line("Route 3 est invalide");
+        Put_Line("Route 3 est invalide. C'est attendu");
     end if;
 
-end Routage_Scenario;
-
+end Scenario_Routage;
