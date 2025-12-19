@@ -36,7 +36,7 @@ package body Routage is
         table : in T_Table_Routage) return Unbounded_String is
         curseur_table: T_LCA;
         route_actuel: T_Route;
-        fit: Integer;
+        fit: IP_Adresse;
         return_interface: Unbounded_String;
     begin
         curseur_table := Premier(T_LCA(table)); 
@@ -44,8 +44,8 @@ package body Routage is
         while not Est_Vide(curseur_table) loop
             route_actuel := Element(curseur_table); 
             if Est_Valide(String_Vers_Ip(ip), route_actuel) and then
-                    IP_Adresse(fit) < route_actuel.Masque then
-                fit := Integer(route_actuel.Masque);
+                    fit < route_actuel.Masque then
+                fit := route_actuel.Masque;
                 return_interface := route_actuel.Interface_Route;
             else
                 null;
@@ -56,8 +56,22 @@ package body Routage is
     end Get_Interface;
 
 
+    procedure Initialiser_Table(table : out T_Table_Routage) is
+    begin
+        Initialiser(table);
+    end Initialiser_Table;
+
+
+    procedure Enregistrer_Route(table : in out T_Table_Routage; route : in T_Route) is
+    begin
+        Enregistrer(table, route);
+    end Enregistrer_Route;
+
+
     -- TODO Rendre generic car la place des éléments peuvent être différents
-    procedure Enregistrer_Route(ligne : in Unbounded_String; table : in out T_Table_Routage) is
+    -- Enregistre la ligne x.x.x.x x.x.x.x ethx string en route dans la table
+    -- de routage.
+    procedure Enregistrer_Ligne(ligne : in Unbounded_String; table : in out T_Table_Routage) is
         route: T_Route;
         liste: String_List;
     begin
@@ -66,7 +80,7 @@ package body Routage is
         route.Masque := String_vers_Ip(liste(2));
         route.Interface_Route := liste(3);
         Enregistrer(table, route);
-    end Enregistrer_Route;
+    end Enregistrer_Ligne;
 
 
     function Charger_Table_Routage(file : in File_Type) return T_Table_Routage is
@@ -80,7 +94,8 @@ package body Routage is
                 numero_ligne := Integer(Line(file));
                 valeur := Get_Line(file); 
                 Trim(valeur, Both);
-                Enregistrer_Route(valeur, table);
+                -- Fonction locale pour séparer les éléments de la ligne
+                Enregistrer_Ligne(valeur, table);
                 exit when End_Of_File (file);
             end loop;
         exception

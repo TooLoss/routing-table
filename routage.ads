@@ -39,6 +39,12 @@ package Routage is
     function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse;
 
 
+    procedure Enregistrer_Route(table : in out T_Table_Routage; route : in T_Route);
+
+
+    procedure Initialiser_Table(table : out T_Table_Routage);
+
+
 private
 
     type T_Route is
