@@ -6,4 +6,7 @@ package Routage_Exceptions is
     -- si les arguments sont incorrects
     Argument_Routage_Error : Exception;
 
+    -- si le fichier n'existe pas
+    Fichier_Introuvable_Error : Exception;
+
 end Routage_Exceptions;
