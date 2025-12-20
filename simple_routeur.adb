@@ -1,12 +1,9 @@
 with Routage;                   use Routage;
 with Ada.Text_IO;               use Ada.Text_IO;
 with Ada.Strings.Unbounded;     use Ada.Strings.Unbounded;
-with Fichier;                   use Fichier;
 with Ada.Strings;               use Ada.Strings;
-with Ada.Integer_Text_IO;       use Ada.Integer_Text_IO;
 with Ada.Text_IO.Unbounded_IO;  use Ada.Text_IO.Unbounded_IO;
 with Ada.Command_Line;          use Ada.Command_Line;
-with Ada.Exceptions;            use Ada.Exceptions;
 with Routage_Exceptions;        use Routage_Exceptions;
 
 
