@@ -1,3 +1,7 @@
+with Fichier;                   use Fichier;
+with Routage_Exceptions;        use Routage_Exceptions;
+with Ada.Text_IO.Unbounded_IO;  use Ada.Text_IO.Unbounded_IO;
+
 package body Routage is
 
     procedure Creer_Route(route : out T_Route; ip : in IP_Adresse;
@@ -89,13 +93,11 @@ package body Routage is
 
 
     procedure Charger_Table_Routage(table : out T_Table_Routage; file : in File_Type) is
-        numero_ligne: Integer;
         valeur: Unbounded_String;
     begin
         Initialiser(table);
         begin
             loop
-                numero_ligne := Integer(Line(file));
                 valeur := Get_Line(file); 
                 Trim(valeur, Both);
                 -- Fonction locale pour séparer les éléments de la ligne
@@ -125,7 +127,7 @@ package body Routage is
             bit := ((masque * (2 ** (i-1))) and POIDS_FORT) /= 0;
             if not bit then
                 switch := True;
-            elsif bit and switch then
+            elsif switch then
                 return False;
             end if;
         end loop;
