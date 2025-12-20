@@ -3,7 +3,7 @@ with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Integer_Text_IO;   use Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Assertions;        use Ada.Assertions;
-with Routage_Exceptions;     use Routage_Exceptions;
+with Routage_Exceptions;    use Routage_Exceptions;
 
 procedure Tester_Routage is
 
@@ -18,6 +18,8 @@ procedure Tester_Routage is
     procedure Test_Find_Interface;
 
     procedure Test_Table_Routage;
+
+    procedure Test_Exceptions;
 
     procedure Lancer_Tous_Les_Test;
 
@@ -64,7 +66,7 @@ procedure Tester_Routage is
             ip => String_Vers_Ip(To_Unbounded_String("192.168.1.0")),
             masque => String_Vers_Ip(To_Unbounded_String("255.255.255.0")),
             interface_route => To_Unbounded_String("eth0")
-        );
+            );
         pragma Assert(Get_Ip(MaRoute) = String_Vers_Ip(To_Unbounded_String("192.168.1.0")));
         pragma Assert(Get_Masque(MaRoute) = String_Vers_Ip(To_Unbounded_String("255.255.255.0")));
         pragma Assert(Get_Interface(MaRoute) = To_Unbounded_String("eth0"));
@@ -108,13 +110,13 @@ procedure Tester_Routage is
             ip => String_Vers_Ip(To_Unbounded_String("192.168.1.0")),
             masque => String_Vers_Ip(To_Unbounded_String("255.255.255.0")),
             interface_route => To_Unbounded_String("eth0")
-        );
+            );
         Creer_Route(
             route => Route1,
             ip => String_Vers_Ip(To_Unbounded_String("192.168.0.0")),
             masque => String_Vers_Ip(To_Unbounded_String("255.255.0.0")),
             interface_route => To_Unbounded_String("eth1")
-        );
+            );
         Initialiser_Table(Table);
         Enregistrer_Route(Table, Route0);
         Enregistrer_Route(Table, Route1);
@@ -134,7 +136,7 @@ procedure Tester_Routage is
             ip => String_Vers_Ip(To_Unbounded_String("192.168.1.0")),
             masque => String_Vers_Ip(To_Unbounded_String("255.255.255.0")),
             interface_route => To_Unbounded_String("eth0")
-        );
+            );
         Enregistrer_Route(Table, Route);
         pragma Assert(not Table_Vide(Table));
         begin
@@ -146,6 +148,24 @@ procedure Tester_Routage is
                 pragma assert(false);
         end;
     end Test_Table_Routage;
+
+    procedure Test_Exceptions is
+        RouteImpossible : T_Route;
+    begin
+        begin
+            Creer_Route(
+                route => RouteImpossible,
+                ip => String_Vers_Ip(To_Unbounded_String("192.168.270.0")),
+                masque => String_Vers_Ip(To_Unbounded_String("255.255.255.0")),
+                interface_route => To_Unbounded_String("eth0")
+                );
+        exception
+            when IP_Invalide_Erreur =>
+                null;
+            when others =>
+                pragma assert(false);
+        end;
+    end;
 
     procedure Lancer_Tous_Les_Test is
     begin
@@ -160,6 +180,9 @@ procedure Tester_Routage is
         Test_Find_Interface;
         Put_Line("Test_Find_Interface validé");
         Test_Table_Routage;
+        Put_Line("Test_Table_Routage validé");
+        Test_Exceptions;
+        Put_Line("Test_Exceptions validé");
     end Lancer_Tous_Les_Test;
 
 begin

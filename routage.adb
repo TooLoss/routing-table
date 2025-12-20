@@ -28,6 +28,9 @@ package body Routage is
         ip_list := Convertir_StringEntier(Separer(ip_string, '.'));
         ip := 0;
         for i in 1..4 loop
+            if ip_list(i) > 255 or ip_list(i) < 0 then
+                raise IP_Invalide_Erreur;
+            end if;
             ip := ip * 256 + IP_Adresse(ip_list(i));
         end loop;
         return ip;

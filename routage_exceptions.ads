@@ -9,4 +9,7 @@ package Routage_Exceptions is
     -- si le fichier n'existe pas
     Fichier_Introuvable_Error : Exception;
 
+    -- si l'IP est invalide
+    IP_Invalide_Erreur : Exception;
+
 end Routage_Exceptions;
