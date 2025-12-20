@@ -98,6 +98,7 @@ begin
     Verifier_Presence_Fichier(Arguments.nom_table);
     Open(fichier_table, In_File, To_String(Arguments.nom_table));
     Charger_Table_Routage(table, fichier_table);
+    Afficher_Table(table);
     Close(fichier_table);
 
     -- Pour chaque paquet, on extrait l'adresse IP destination,

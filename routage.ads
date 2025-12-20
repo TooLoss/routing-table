@@ -35,6 +35,8 @@ package Routage is
     -- Convertir une chaine IP x.x.x.x en type adresse IP
     function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse;
 
+    function Ip_Vers_String(ip : in IP_Adresse) return Unbounded_String;
+
     -- Est ce que la table est vide ?
     function Table_Vide(table : T_Table_Routage) return Boolean;
 
@@ -45,6 +47,9 @@ package Routage is
     -- Initaliser une table vide
     procedure Initialiser_Table(table : out T_Table_Routage) with
         Post => Table_Vide(table);
+
+    procedure Afficher_Table(table : in T_Table_Routage);
+    procedure Afficher_Route(route : in T_Route);
 
     function Get_Ip(route: T_Route) return IP_Adresse;
     function Get_Masque(route: T_Route) return IP_Adresse;

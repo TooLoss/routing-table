@@ -1,6 +1,7 @@
 with Fichier;                   use Fichier;
 with Routage_Exceptions;        use Routage_Exceptions;
 with Ada.Text_IO.Unbounded_IO;  use Ada.Text_IO.Unbounded_IO;
+with Ada.Strings.Fixed;         use Ada.Strings.Fixed;
 
 package body Routage is
 
@@ -11,13 +12,13 @@ package body Routage is
             Ip => ip,
             Masque => masque,
             Interface_Route => interface_route
-        );
+            );
     end Creer_Route;
 
 
     function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean is
-        route_ip: IP_Adresse;
-        route_masque: IP_Adresse;
+        route_ip : IP_Adresse;
+        route_masque : IP_Adresse;
     begin
         route_ip := route.Ip;
         route_masque := route.Masque;
@@ -26,8 +27,8 @@ package body Routage is
 
 
     function String_Vers_Ip(ip_string : in Unbounded_String) return IP_Adresse is
-        ip_list: Int_List;
-        ip: IP_Adresse;
+        ip_list : Int_List;
+        ip : IP_Adresse;
     begin
         ip_list := Convertir_StringEntier(Separer(ip_string, '.'));
         ip := 0;
@@ -41,11 +42,32 @@ package body Routage is
     end String_Vers_Ip;
 
 
+    function Ip_Vers_String(ip : in IP_Adresse) return Unbounded_String is
+        UN_Byte : constant IP_Adresse := 2 ** 8;
+        Byte1, Byte2, Byte3, Byte4 : Integer;
+        Resultat : Unbounded_String;
+    begin
+        Byte4 := Integer(ip / (UN_Byte ** 3) mod UN_Byte);
+        Byte3 := Integer(ip / (UN_Byte ** 2) mod UN_Byte);
+        Byte2 := Integer(ip / UN_Byte mod UN_Byte);
+        Byte1 := Integer(ip mod UN_Byte);
+
+        Resultat := To_Unbounded_String(
+            Trim(Integer'Image(Byte4), Both) & "." &
+            Trim(Integer'Image(Byte3), Both) & "." &
+            Trim(Integer'Image(Byte2), Both) & "." &
+            Trim(Integer'Image(Byte1), Both)
+            );
+
+        return Resultat;
+    end Ip_Vers_String;
+
+
     function Find_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
         return Unbounded_String is
-        curseur_table: T_LCA;
-        route_actuel: T_Route;
-        fit: IP_Adresse;
+        curseur_table : T_LCA;
+        route_actuel : T_Route;
+        fit : IP_Adresse;
         return_interface : Unbounded_String;
     begin
         curseur_table := Premier(T_LCA(table)); 
@@ -53,7 +75,7 @@ package body Routage is
         while not Est_Vide(curseur_table) loop
             route_actuel := Element(curseur_table); 
             if Est_Valide(ip, route_actuel) and then
-                    fit < route_actuel.Masque then
+                fit < route_actuel.Masque then
                 fit := route_actuel.Masque;
                 return_interface := route_actuel.Interface_Route;
             else
@@ -81,8 +103,8 @@ package body Routage is
     -- Enregistre la ligne x.x.x.x x.x.x.x ethx string en route dans la table
     -- de routage.
     procedure Enregistrer_Ligne(ligne : in Unbounded_String; table : in out T_Table_Routage) is
-        route: T_Route;
-        liste: String_List;
+        route : T_Route;
+        liste : String_List;
     begin
         liste := Separer(ligne, ' ');
         route.Ip := String_Vers_Ip(liste(1));
@@ -93,7 +115,7 @@ package body Routage is
 
 
     procedure Charger_Table_Routage(table : out T_Table_Routage; file : in File_Type) is
-        valeur: Unbounded_String;
+        valeur : Unbounded_String;
     begin
         Initialiser(table);
         begin
@@ -135,19 +157,40 @@ package body Routage is
     end Masque_Valide;
 
 
-    function Get_Ip(route: T_Route) return IP_Adresse is
+    procedure Afficher_Table(table : in T_Table_Routage) is
+        curseur_table : T_LCA;
+        route_actuel : T_Route;
+    begin
+        curseur_table := Premier(T_LCA(table)); 
+        while not Est_Vide(curseur_table) loop
+            route_actuel := Element(curseur_table); 
+            Afficher_Route(route_actuel);
+            curseur_table := Suivant(curseur_table);
+        end loop;
+    end Afficher_Table;
+
+
+    procedure Afficher_Route(route : T_Route) is
+    begin
+        Put_Line(Ip_Vers_String(route.Ip) & " " &
+        Ip_Vers_String(route.Masque) & " " &
+        route.Interface_Route);
+    end Afficher_Route;
+
+
+    function Get_Ip(route : T_Route) return IP_Adresse is
     begin
         return route.Ip;
     end Get_Ip;
 
 
-    function Get_Masque(route: T_Route) return IP_Adresse is
+    function Get_Masque(route : T_Route) return IP_Adresse is
     begin
         return route.Masque;
     end Get_Masque;
 
 
-    function Get_Interface(route: T_Route) return Unbounded_String is
+    function Get_Interface(route : T_Route) return Unbounded_String is
     begin
         return route.Interface_Route;
     end Get_Interface;
