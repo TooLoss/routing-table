@@ -101,8 +101,8 @@ begin
 
     Put_Line("Récupérer l'interface automatiquement");
     Put("Interface retourné doit être eth0: ");
-    Founded_Interface := Get_Interface(Ip1, Table);
-    Put_Line(To_String(Get_Interface(Ip1, Table)));
+    Founded_Interface := Find_Interface(Ip1, Table);
+    Put_Line(To_String(Find_Interface(Ip1, Table)));
 
 
 end Scenario_Routage;

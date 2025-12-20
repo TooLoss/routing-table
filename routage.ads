@@ -30,7 +30,7 @@ package Routage is
     function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean;
 
     -- Obtenir la route d'une ip correspondante dans la table de routage.
-    function Get_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
+    function Find_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
         return Unbounded_String;
 
     -- Lire un fichier de la table de routage puis crée une liste chainé de Route.
@@ -51,15 +51,20 @@ package Routage is
     procedure Initialiser_Table(table : out T_Table_Routage) with
         Post => Table_Vide(table);
 
+    function Get_Ip(route: T_Route) return IP_Adresse;
+    function Get_Masque(route: T_Route) return IP_Adresse;
+    function Get_Interface(route: T_Route) return Unbounded_String;
+
 private
 
+    -- Valeurs par défauts temporaires pour vérifier l'ivariant de type.
     type T_Route is
         record
-            Ip : Ip_Adresse;
-            Masque : Ip_Adresse;
+            Ip : Ip_Adresse := IP_Adresse(0);
+            Masque : Ip_Adresse := IP_Adresse(0);
             Interface_Route : Unbounded_String;
         end record with
-        Type_Invariant => Masque_Valide(T_Route.masque);
+        Type_Invariant => Masque_Valide(Masque);
 
     package LCA_Routage is
         new LCA (T_Element => T_Route);

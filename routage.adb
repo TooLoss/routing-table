@@ -3,9 +3,11 @@ package body Routage is
     procedure Creer_Route(route : out T_Route; ip : in IP_Adresse;
         masque : in IP_Adresse; interface_route : in Unbounded_String) is
     begin
-        route.Ip := ip;
-        route.Masque := masque;
-        route.Interface_Route := interface_route; 
+        route := (
+            Ip => ip,
+            Masque => masque,
+            Interface_Route => interface_route
+        );
     end Creer_Route;
 
 
@@ -15,7 +17,7 @@ package body Routage is
     begin
         route_ip := route.Ip;
         route_masque := route.Masque;
-        return (ip and route_masque) = route_ip;
+        return (ip and route_masque) = (route_ip and route_masque);
     end Est_Valide;
 
 
@@ -32,7 +34,7 @@ package body Routage is
     end String_Vers_Ip;
 
 
-    function Get_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
+    function Find_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
         return Unbounded_String is
         curseur_table: T_LCA;
         route_actuel: T_Route;
@@ -53,7 +55,7 @@ package body Routage is
             curseur_table := Suivant(curseur_table);
         end loop;
         return return_interface;
-    end Get_Interface;
+    end Find_Interface;
 
 
     procedure Initialiser_Table(table : out T_Table_Routage) is
@@ -110,9 +112,6 @@ package body Routage is
         return Est_Vide(table);
     end Table_Vide;
 
-    --
-    -- Sous-programme Privés
-    --
 
     function Masque_Valide(masque : IP_Adresse) return Boolean is
         POIDS_FORT : constant IP_Adresse := 2 ** 31;
@@ -129,5 +128,23 @@ package body Routage is
         end loop;
         return True;
     end Masque_Valide;
+
+
+    function Get_Ip(route: T_Route) return IP_Adresse is
+    begin
+        return route.Ip;
+    end Get_Ip;
+
+
+    function Get_Masque(route: T_Route) return IP_Adresse is
+    begin
+        return route.Masque;
+    end Get_Masque;
+
+
+    function Get_Interface(route: T_Route) return Unbounded_String is
+    begin
+        return route.Interface_Route;
+    end Get_Interface;
 
 end Routage;

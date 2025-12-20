@@ -41,7 +41,7 @@ procedure Simple_Routeur is
     is
         interface_trouvee : Unbounded_String;
     begin
-        interface_trouvee := Get_Interface(String_Vers_Ip(paquet), table);
+        interface_trouvee := Find_Interface(String_Vers_Ip(paquet), table);
         if To_String(interface_trouvee) /= "" then
             Put(fichier_resultats, paquet & " " & interface_trouvee);
             New_Line(fichier_resultats);
