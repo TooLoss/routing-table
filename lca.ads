@@ -7,6 +7,8 @@ package LCA is
 
 	procedure Initialiser (LCA : out T_LCA);
 
+    procedure Detruire (LCA : in out T_LCA);
+
 	function Est_Vide (LCA : in T_LCA) return Boolean;
 
 	procedure Enregistrer (LCA : in out T_LCA; Element : in T_Element);

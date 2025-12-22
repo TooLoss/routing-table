@@ -93,6 +93,12 @@ package body Routage is
     end Initialiser_Table;
 
 
+    procedure Detruire_Table(table : in out T_Table_Routage) is
+    begin
+        Detruire(table);
+    end Detruire_Table;
+
+
     procedure Enregistrer_Route(table : in out T_Table_Routage; route : in T_Route) is
     begin
         Enregistrer(table, route);

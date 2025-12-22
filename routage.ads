@@ -48,6 +48,9 @@ package Routage is
     procedure Initialiser_Table(table : out T_Table_Routage) with
         Post => Table_Vide(table);
 
+    -- Detruire la table de routage
+    procedure Detruire_Table(table : in out T_Table_Routage);
+
     procedure Afficher_Table(table : in T_Table_Routage);
     procedure Afficher_Route(route : in T_Route);
 

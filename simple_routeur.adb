@@ -125,6 +125,9 @@ begin
     Close(fichier_paquets);
     Close(fichier_resultats);
 
+    -- détruire la table de routage
+    Detruire_Table(table);
+
 exception
     when Fichier_Introuvable_Error =>
         Put_Line("Vérifier que les fichiers en arguments existent : " &

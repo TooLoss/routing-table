@@ -1,11 +1,26 @@
 with Routage_Exceptions;    use Routage_Exceptions;
+with Ada.Unchecked_Deallocation;
 
 package body LCA is 
+    
+    procedure Free is
+        new Ada.Unchecked_Deallocation (T_Cellule, T_LCA);
 
     procedure Initialiser(LCA : out T_LCA) is
     begin
         LCA := null;
     end Initialiser;
+
+
+    procedure Detruire(LCA : in out T_LCA) is
+    begin
+        if LCA = null or else LCA.Suivant = null then
+            Free(LCA);
+        else
+            Detruire(LCA.Suivant);
+            Free(LCA);
+        end if;
+    end Detruire;
 
 
     function Est_Vide (LCA : T_LCA) return Boolean is
