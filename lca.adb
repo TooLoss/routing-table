@@ -62,4 +62,26 @@ package body LCA is
         return LCA.Suivant;
     end Suivant;
 
+
+    procedure Supprimer (LCA : in out T_LCA; Element : in T_Element) is
+        to_delete : T_LCA;
+    begin
+        if LCA = null then
+            raise Element_Abscent;
+        else
+            if LCA.ELement = Element then
+                to_delete := LCA;
+                LCA := LCA.Suivant;
+                Free(to_delete);
+            else
+                Supprimer(LCA.Suivant, Element);
+            end if;
+        end if;
+    end Supprimer;
+
+    function Taille (LCA : in T_LCA) return Integer is
+    begin
+        return 1 + Taille (LCA.Suivant);
+    end Taille;
+
 end LCA;
