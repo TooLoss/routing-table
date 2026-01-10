@@ -79,6 +79,7 @@ package body LCA is
         end if;
     end Supprimer;
 
+
     function Taille (LCA : in T_LCA) return Integer is
     begin
         if LCA /= null then
@@ -87,5 +88,27 @@ package body LCA is
             return 0;
         end if;
     end Taille;
+
+
+    procedure Reaffecter(
+        LCA : in out T_LCA;
+        Ancien_Element : in T_Element;
+        Nouveau_Element : in T_Element) is
+        Courant : T_LCA;
+        trouve : Boolean := False;
+    begin
+        Courant := LCA;
+        while Courant /= null loop
+            if Courant.Element = Ancien_Element then
+                Courant.Element := Nouveau_Element;
+                trouve := True;
+            end if;
+            Courant := Courant.Suivant;
+        end loop;
+        if not trouve then
+            raise Element_Abscent;
+        end if;
+    end Reaffecter;
+
 
 end LCA;

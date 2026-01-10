@@ -23,7 +23,7 @@ procedure Tester_Cache_LL is
         interface_route : constant Unbounded_String := To_Unbounded_String("eth0");
     begin
         Initialiser_Cache(Cache_Test);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, FIFO);
         Chercher_Cache(Route1, Cache_Test, Ip1);
         pragma Assert(Get_Ip(Route1) = Ip1);
     end Test_Chercher_Cache;
@@ -37,8 +37,9 @@ procedure Tester_Cache_LL is
         Route1, Route2 : T_Route;
     begin
         Initialiser_Cache(Cache_Test);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, FIFO);
+        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route, FIFO);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, FIFO);
         Supprimer_Cache(Cache_Test, FIFO);
         pragma Assert(Taille_Cache(Cache_Test) = 1);
         Chercher_Cache(Route1, Cache_Test, Ip2);
@@ -60,9 +61,9 @@ procedure Tester_Cache_LL is
         Route1, Route2 : T_Route;
     begin
         Initialiser_Cache(Cache_Test);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LRU);
+        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route, LRU);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LRU);
         Supprimer_Cache(Cache_Test, LRU);
         pragma Assert(Taille_Cache(Cache_Test) = 1);
         Chercher_Cache(Route1, Cache_Test, Ip1);
@@ -85,18 +86,18 @@ procedure Tester_Cache_LL is
         Route1, Route2, Route3 : T_Route;
     begin
         Initialiser_Cache(Cache_Test);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route);
-        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip2, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route, LFU);
+        Enregistrer_Cache(Cache_Test, Ip3, Masque, interface_route, LFU);
 
         Supprimer_Cache(Cache_Test, LFU);
         pragma Assert(Taille_Cache(Cache_Test) = 2);
@@ -157,7 +158,7 @@ procedure Tester_Cache_LL is
         interface_route : constant Unbounded_String := To_Unbounded_String("eth0");
     begin
         Initialiser_Cache(Cache_Test);
-        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route);
+        Enregistrer_Cache(Cache_Test, Ip1, Masque, interface_route, FIFO);
         pragma Assert(Taille_Cache(Cache_Test) = 1);
     end Test_Enregistrer_Cache;
 

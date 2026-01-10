@@ -33,7 +33,8 @@ package Cache_LL is
     procedure Enregistrer_Cache(cache : in out T_Cache;
         ip : in IP_Adresse;
         masque : in IP_Adresse;
-        interface_route : in Unbounded_String);
+        interface_route : in Unbounded_String;
+        politique : in T_Cache_Politique);
 
     -- Récupère la taille du cache 
     function Taille_Cache(cache : in T_Cache) return Integer;

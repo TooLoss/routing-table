@@ -107,9 +107,10 @@ procedure Routeur_LL is
                     Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
                     New_Line(fichier_resultats);
                     if Taille_Cache(cache) > Arguments.cache_taille then
-                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                        Supprimer_Cache(cache, Arguments.cache_politique);
+                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
                     else
-                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
                     end if;
                 exception
                     when Route_Non_Presente => null; 

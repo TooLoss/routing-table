@@ -81,11 +81,13 @@ package body Cache_LL is
     procedure Enregistrer_Cache(cache : in out T_Cache;
         ip : in IP_Adresse;
         masque : in IP_Adresse;
-        interface_route : in Unbounded_String) is
+        interface_route : in Unbounded_String;
+        politique : in T_Cache_Politique) is
         curseur : T_Cache;
         ip_masque : IP_Adresse;
         ip_trouvee : Boolean := False;
         cellule : T_Cache_Cellule;
+        nouvelle_cellule : T_Cache_Cellule;
     begin
         curseur := cache;
         ip_masque := ip and masque;
@@ -94,14 +96,15 @@ package body Cache_LL is
         while not Est_Vide(curseur) and not ip_trouvee loop
             if Element(curseur).ip = ip_masque then
                 cellule := Element(curseur);
-
-                -- Pour la politique LRU 
-                Supprimer(cache, cellule);
-
-                cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-
-                Enregistrer(cache, cellule);
-
+                if politique = LRU then
+                    Supprimer(cache, cellule);
+                    cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
+                    Enregistrer(cache, cellule);
+                else
+                    nouvelle_cellule := cellule;
+                    nouvelle_cellule.nombre_utilisations := nouvelle_cellule.nombre_utilisations + 1;
+                    Reaffecter(cache, cellule, nouvelle_cellule);
+                end if;
                 ip_trouvee := True;
             end if;
             curseur := Suivant(curseur);
