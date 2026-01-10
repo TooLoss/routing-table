@@ -1,4 +1,5 @@
 generic
+
     type T_Element is private;  -- Type des éléments de la LCA
 
 package LCA is
