@@ -24,8 +24,7 @@ package Cache_LL is
         return T_Cache_Politique;
 
     -- Recherche ip dans le cache
-    function Chercher_Cache(cache : in T_Cache; ip : in IP_Adresse)
-        return Unbounded_String;
+    procedure Chercher_Cache(route : out T_Route; cache : in T_Cache; ip : in IP_Adresse);
 
     -- Renvoie True si l'ip est dans le cache
     --  function Est_Dans_Cache(cache : in T_Cache; ip : in IP_Adresse)

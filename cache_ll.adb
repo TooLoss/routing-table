@@ -46,20 +46,36 @@ package body Cache_LL is
         end if;
     end String_Vers_Politique;
 
-    function Chercher_Cache(cache : in T_Cache; ip : in IP_Adresse) return Unbounded_String is
+    procedure Chercher_Cache(route : out T_Route; cache : in T_Cache; ip : in IP_Adresse) is
         cursor : T_Cache;
         interface_return : Unbounded_String;
+        masque_max : IP_Adresse := 0;
+        route_trouvee : Boolean := False;
+        ip_cache : IP_Adresse;
+        masque_cache : IP_Adresse;
+        interface_cache : Unbounded_String;
+        ip_max : IP_Adresse;
     begin
-        cursor := cache;
         while not Est_Vide(cursor) loop
-            if Element(cursor).ip = ip then
-                interface_return := Element(cursor).interface_route;
-            else
-                null;
+            ip_cache := Element(cursor).ip;
+            masque_cache := Element(cursor).masque;
+            interface_cache := Element(cursor).interface_route;
+
+            if (ip and masque_cache) = (ip_cache and masque_cache) then
+                if masque_cache > masque_max then
+                    masque_max := masque_cache;
+                    interface_return := interface_cache;
+                    route_trouvee := True;
+                end if;
             end if;
             cursor := Suivant(cursor);
         end loop;
-        return interface_return;
+
+        if not route_trouvee then
+            raise Route_Non_Presente;
+        end if;
+
+        Creer_Route(route, ip_max, masque_max, interface_return);
     end Chercher_Cache;
 
     procedure Mise_A_Jour_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; ip : in IP_Adresse) is

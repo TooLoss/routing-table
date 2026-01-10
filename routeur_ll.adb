@@ -59,24 +59,32 @@ procedure Routeur_LL is
     is
         route_t : T_Route;
         ip : IP_Adresse;
-        route_trouvee : Boolean := True;
+        route_dans_cache : Boolean := False;
     begin
         ip := String_Vers_Ip(paquet);
+
         begin
-            Find_Interface(route_t, ip, table);
-        exception
-            when Route_Non_Presente => route_trouvee := False;
-        end;
-        if route_trouvee then
+            Chercher_Cache(route_t, cache, ip);
             Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
             New_Line(fichier_resultats);
-            -- Suppression si cache en excès
-            if Taille_Cache(cache) > Arguments.cache_taille then
-                -- Supprimer_Cache(cache, Arguments.cache_politique);
-                Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
-            else
-                Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
-            end if;
+            route_dans_cache := True;
+        exception
+            when Route_Non_Presente => route_dans_cache := False;
+        end;
+
+        if not route_dans_cache then
+            begin
+                Find_Interface(route_t, ip, table);
+                Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
+                New_Line(fichier_resultats);
+                if Taille_Cache(cache) > Arguments.cache_taille then
+                    Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                else
+                    Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                end if;
+            exception
+                when Route_Non_Presente => null; 
+            end;
         else
             null;
         end if;
