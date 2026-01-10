@@ -11,7 +11,8 @@ package Cache_LL is
     type T_Cache is limited private;
 
     -- Procedure surchargé du module LCA. Cree le cache;
-    procedure Initialiser_Cache(cache : out T_Cache);
+    procedure Initialiser_Cache(cache : out T_Cache) with
+        Post => Taille_Cache(cache) = 0;
 
     -- Supprime du cache en fonction de la politique quand la taille est
     -- dépassé
@@ -25,15 +26,6 @@ package Cache_LL is
 
     -- Recherche ip dans le cache
     procedure Chercher_Cache(route : out T_Route; cache : in T_Cache; ip : in IP_Adresse);
-
-    -- Renvoie True si l'ip est dans le cache
-    --  function Est_Dans_Cache(cache : in T_Cache; ip : in IP_Adresse)
-    --      return Boolean;
-
-    -- Met a jour le nombre d'utilisation du cache
-    procedure Mise_A_Jour_Cache(cache : in out T_Cache;
-        politique : in T_Cache_Politique;
-        ip : in IP_Adresse);
 
     -- Enregistre la route dans le cache. Si l'ip est déjà présente, on
     -- incrémente son nombre d'utilisation et on place en queue. Sinon, on

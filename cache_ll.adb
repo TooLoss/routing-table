@@ -78,30 +78,6 @@ package body Cache_LL is
         Creer_Route(route, ip, masque_max, interface_return);
     end Chercher_Cache;
 
-    procedure Mise_A_Jour_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; ip : in IP_Adresse) is
-        curseur : T_Cache;
-        cellule : T_Cache_Cellule;
-    begin
-        curseur := cache;
-        while not Est_Vide(curseur) loop
-            if Element(curseur).ip = ip then
-                -- Incrémentation du nombre d'utilisation,
-                -- Remet en avant la route si le mode LRU
-                cellule := Element(curseur);
-                if politique = LRU then
-                    Supprimer(cache, cellule);
-                    cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-                    Enregistrer(cache, cellule);
-                else 
-                    cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-                end if;
-            else
-                null;
-            end if;
-            curseur := Suivant(curseur);
-        end loop;
-    end Mise_A_Jour_Cache;
-
     procedure Enregistrer_Cache(cache : in out T_Cache;
         ip : in IP_Adresse;
         masque : in IP_Adresse;
