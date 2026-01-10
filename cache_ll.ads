@@ -46,6 +46,9 @@ package Cache_LL is
     -- Récupère la taille du cache 
     function Taille_Cache(cache : in T_Cache) return Integer;
 
+    -- Afficher toutes les routes du cache
+    procedure Afficher_Cache(cache : in T_Cache);
+
 private
 
     type T_Cache_Cellule is 

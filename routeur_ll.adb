@@ -39,6 +39,10 @@ procedure Routeur_LL is
         fichier_resultats : in out File_Type;
         Arguments : in T_Arguments);
 
+    procedure Effectuer_Action(ligne : in Unbounded_String;
+        table : in T_Table_Routage;
+        cache : in T_Cache);
+
     --
     -- Implémentations
     --
@@ -60,34 +64,48 @@ procedure Routeur_LL is
         route_t : T_Route;
         ip : IP_Adresse;
         route_dans_cache : Boolean := False;
+        ip_valide : Boolean := True;
     begin
-        ip := String_Vers_Ip(paquet);
+        -- Vérifie d'abord que la ligne est une action 
+        Effectuer_Action(paquet, table, cache);
 
+        -- Conversion en ip, sensible et nécéssite de respecter
+        -- nombreuses pré-conditions
         begin
-            Chercher_Cache(route_t, cache, ip);
-            Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
-            New_Line(fichier_resultats);
-            route_dans_cache := True;
+            ip := String_Vers_Ip(paquet);
         exception
-            when Route_Non_Presente => route_dans_cache := False;
+            when others => ip_valide := False;
         end;
 
-        if not route_dans_cache then
+        if ip_valide then
+            -- Recherche dans le cache
             begin
-                Find_Interface(route_t, ip, table);
+                Chercher_Cache(route_t, cache, ip);
                 Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
                 New_Line(fichier_resultats);
-                if Taille_Cache(cache) > Arguments.cache_taille then
-                    Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
-                else
-                    Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
-                end if;
+                route_dans_cache := True;
             exception
-                when Route_Non_Presente => null; 
+                when Route_Non_Presente => route_dans_cache := False;
             end;
-        else
-            null;
-        end if;
+
+            -- Recherche dans la table
+            if not route_dans_cache then
+                begin
+                    Find_Interface(route_t, ip, table);
+                    Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
+                    New_Line(fichier_resultats);
+                    if Taille_Cache(cache) > Arguments.cache_taille then
+                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                    else
+                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+                    end if;
+                exception
+                    when Route_Non_Presente => null; 
+                end;
+            else
+                null;
+            end if;
+        end if; 
     end Traiter_Paquet;
 
     procedure Verifier_Presence_Fichier(filename : in Unbounded_String) is
@@ -104,6 +122,17 @@ procedure Routeur_LL is
                 raise Fichier_Introuvable_Error;
         end;
     end Verifier_Presence_Fichier;
+
+    procedure Effectuer_Action(ligne : in Unbounded_String;
+        table : in T_Table_Routage;
+        cache : in T_Cache) is
+    begin
+        if To_String(ligne) = "table" then
+            Afficher_Table(table);
+        elsif To_String(ligne) = "cache" then
+            Afficher_Cache(cache);
+        end if;
+    end Effectuer_Action;
 
     Arguments : T_Arguments;
     fichier_table : File_Type;
@@ -154,7 +183,7 @@ begin
     Verifier_Presence_Fichier(Arguments.nom_table);
     Open(fichier_table, In_File, To_String(Arguments.nom_table));
     Charger_Table_Routage(table, fichier_table);
-    Afficher_Table(table);
+    --Afficher_Table(table);
     Close(fichier_table);
 
     -- Pour chaque paquet, on extrait l'adresse IP destination,

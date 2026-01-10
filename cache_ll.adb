@@ -54,7 +54,6 @@ package body Cache_LL is
         ip_cache : IP_Adresse;
         masque_cache : IP_Adresse;
         interface_cache : Unbounded_String;
-        ip_max : IP_Adresse;
     begin
         while not Est_Vide(cursor) loop
             ip_cache := Element(cursor).ip;
@@ -75,7 +74,7 @@ package body Cache_LL is
             raise Route_Non_Presente;
         end if;
 
-        Creer_Route(route, ip_max, masque_max, interface_return);
+        Creer_Route(route, ip, masque_max, interface_return);
     end Chercher_Cache;
 
     procedure Mise_A_Jour_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; ip : in IP_Adresse) is
@@ -144,5 +143,17 @@ package body Cache_LL is
     begin
         return Taille(cache);
     end Taille_Cache;
+
+    procedure Afficher_Cache(cache : in T_Cache) is
+        route : T_Route;
+        curseur : T_Cache;
+    begin
+        curseur := cache;
+        while not Est_Vide(curseur) loop
+            Creer_Route(route, Element(curseur).ip, Element(curseur).masque, Element(curseur).interface_route);
+            Afficher_Route(route);
+            curseur := Suivant(curseur);
+        end loop;
+    end;
 
 end Cache_LL; 
