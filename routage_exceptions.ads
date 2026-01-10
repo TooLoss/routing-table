@@ -12,4 +12,7 @@ package Routage_Exceptions is
     -- si l'IP est invalide
     IP_Invalide_Erreur : Exception;
 
+    -- si l'element est abscent dans la LCA
+    Element_Abscent : Exception;
+
 end Routage_Exceptions;
