@@ -63,27 +63,34 @@ package body Routage is
     end Ip_Vers_String;
 
 
-    function Find_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
-        return Unbounded_String is
+    procedure Find_Interface(route : out T_Route; ip : in IP_Adresse; table : in T_Table_Routage) is
         curseur_table : T_LCA;
         route_actuel : T_Route;
         fit : IP_Adresse;
         return_interface : Unbounded_String;
+        return_masque : IP_Adresse;
+        route_trouvee : Boolean := False;
     begin
         curseur_table := Premier(T_LCA(table)); 
         fit := 0;
         while not Est_Vide(curseur_table) loop
             route_actuel := Element(curseur_table); 
-            if Est_Valide(ip, route_actuel) and then
-                fit < route_actuel.Masque then
+            if Est_Valide(ip, route_actuel) and then fit < route_actuel.Masque then
                 fit := route_actuel.Masque;
                 return_interface := route_actuel.Interface_Route;
+                return_masque := route_actuel.Masque;
+                route_trouvee := True;
             else
                 null;
             end if;
             curseur_table := Suivant(curseur_table);
         end loop;
-        return return_interface;
+        
+        if not route_trouvee then
+            raise Route_Non_Presente;
+        end if;
+
+        Creer_Route(route, ip, return_masque, return_interface);
     end Find_Interface;
 
 
@@ -149,6 +156,7 @@ package body Routage is
     function Masque_Valide(masque : IP_Adresse) return Boolean is
         POIDS_FORT : constant IP_Adresse := 2 ** 31;
         switch : Boolean := False;
+        valide : Boolean := True;
         bit : Boolean;
     begin
         for i in 1..31 loop
@@ -156,10 +164,10 @@ package body Routage is
             if not bit then
                 switch := True;
             elsif switch then
-                return False;
+                valide := False;
             end if;
         end loop;
-        return True;
+        return valide;
     end Masque_Valide;
 
 

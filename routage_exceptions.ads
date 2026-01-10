@@ -15,4 +15,8 @@ package Routage_Exceptions is
     -- si l'element est abscent dans la LCA
     Element_Abscent : Exception;
 
+    -- si la route n'est pas dans la table de routage. C'est mieux
+    -- que de renvoyer une valeur nul par défaut 
+    Route_Non_Presente : Exception;
+
 end Routage_Exceptions;

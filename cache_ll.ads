@@ -44,8 +44,8 @@ package Cache_LL is
         masque : in IP_Adresse;
         interface_route : in Unbounded_String);
 
-    -- Fonction surchargé de Taille du module LCA. Ici, appliqué au Cache.
-    function Taille(cache : in T_Cache) return Integer;
+    -- Récupère la taille du cache 
+    function Taille_Cache(cache : in T_Cache) return Integer;
 
 private
 
@@ -59,7 +59,6 @@ private
 
     package LCA_Cache is
         new LCA (T_Element => T_Cache_Cellule);
-    use LCA_Cache;
 
     type T_Cache is new LCA_Cache.T_LCA;
 

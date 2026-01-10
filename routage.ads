@@ -19,14 +19,13 @@ package Routage is
         masque : in IP_Adresse;
         interface_route : in Unbounded_String
     ) with
-        Pre => Length(interface_route) > 0 and Masque_Valide(masque);
+        Pre => Masque_Valide(masque);
 
     -- Obtenir si une ip est associé à cette route;
     function Est_Valide(ip : in IP_Adresse; route : in T_Route) return Boolean;
 
     -- Obtenir la route d'une ip correspondante dans la table de routage.
-    function Find_Interface(ip : in IP_Adresse; table : in T_Table_Routage)
-        return Unbounded_String;
+    procedure Find_Interface(route : out T_Route; ip : in IP_Adresse; table : in T_Table_Routage);
 
     -- Lire un fichier de la table de routage puis crée une liste chainé de Route.
     procedure Charger_Table_Routage(table : out T_Table_Routage; file : in File_Type) with

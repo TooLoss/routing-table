@@ -81,7 +81,11 @@ package body LCA is
 
     function Taille (LCA : in T_LCA) return Integer is
     begin
-        return 1 + Taille (LCA.Suivant);
+        if LCA /= null then
+            return 1 + Taille (LCA.Suivant);
+        else
+            return 0;
+        end if;
     end Taille;
 
 end LCA;

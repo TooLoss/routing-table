@@ -102,10 +102,12 @@ package body Cache_LL is
         while not Est_Vide(curseur) and not ip_trouvee loop
             if Element(curseur).ip = ip_masque then
                 cellule := Element(curseur);
-                cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
 
                 -- Pour la politique LRU 
                 Supprimer(cache, cellule);
+
+                cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
+
                 Enregistrer(cache, cellule);
 
                 ip_trouvee := True;
@@ -122,9 +124,9 @@ package body Cache_LL is
         end if;
     end Enregistrer_Cache;
 
-    function Taille(cache : in T_Cache) return Integer is
+    function Taille_Cache(cache : in T_Cache) return Integer is
     begin
         return Taille(cache);
-    end Taille;
+    end Taille_Cache;
 
 end Cache_LL; 

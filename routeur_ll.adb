@@ -57,19 +57,26 @@ procedure Routeur_LL is
         fichier_resultats : in out File_Type;
         Arguments : in T_Arguments)
     is
-        interface_trouvee : Unbounded_String;
+        route_t : T_Route;
         ip : IP_Adresse;
+        route_trouvee : Boolean := True;
     begin
         ip := String_Vers_Ip(paquet);
-        interface_trouvee := Find_Interface(ip, table);
-        if To_String(interface_trouvee) /= "" then
-            Put(fichier_resultats, paquet & " " & interface_trouvee);
+        begin
+            Find_Interface(route_t, ip, table);
+        exception
+            when Route_Non_Presente => route_trouvee := False;
+        end;
+        if route_trouvee then
+            Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
             New_Line(fichier_resultats);
-        end if;
-        -- enregistrer dans le cache
-        -- Suppression si cache en excès
-        if Taille(Cache) > Arguments.cache_taille then
-            Supprimer_Cache(cache, Arguments.cache_politique);
+            -- Suppression si cache en excès
+            if Taille_Cache(cache) > Arguments.cache_taille then
+                -- Supprimer_Cache(cache, Arguments.cache_politique);
+                Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+            else
+                Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t));
+            end if;
         else
             null;
         end if;
@@ -97,7 +104,6 @@ procedure Routeur_LL is
     ligne : Unbounded_String;
     table : T_Table_Routage;
     cache : T_Cache;
-    founded_interface : Unbounded_String;
 
 begin
 
@@ -123,10 +129,8 @@ begin
             Verifier_Prochain_Argument(i, Argument_Count);
             Arguments.cache_politique := String_Vers_Politique(To_Unbounded_String(Argument(i+1)));
         elsif Argument(i) = "-s" then
-            Verifier_Prochain_Argument(i, Argument_Count);
             Arguments.est_statistique_active := True;
         elsif Argument(i) = "-S" then
-            Verifier_Prochain_Argument(i, Argument_Count);
             Arguments.est_statistique_active := False;
         end if;
     end loop;
@@ -134,6 +138,9 @@ begin
 
     -- preparer le fichier résultats
     Create(fichier_resultats, Out_File, To_String(Arguments.nom_resultats));
+
+    -- creer le cache
+    Initialiser_Cache(cache);
 
     -- creer la table de routage
     Verifier_Presence_Fichier(Arguments.nom_table);
