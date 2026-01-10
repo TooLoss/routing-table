@@ -5,26 +5,10 @@ with Ada.Strings;               use Ada.Strings;
 with Ada.Text_IO.Unbounded_IO;  use Ada.Text_IO.Unbounded_IO;
 with Ada.Command_Line;          use Ada.Command_Line;
 with Routage_Exceptions;        use Routage_Exceptions;
-with LCA;                       
+with Cache_LL;                  use Cache_LL;                       
 
 
 procedure Routeur_LL is
-    
-    type T_Cache_Politique is (FIFO, LRU, LFU);
-
-    type T_Cache_Cellule is 
-        record
-            ip : IP_Adresse;
-            masque : IP_Adresse;
-            interface_route : Unbounded_String;
-            nombre_utilisations : Integer := 0;
-        end record;
-
-    package LCA_Cache is
-        new LCA (T_Element => T_Cache_Cellule);
-    use LCA_Cache;
-
-    type T_Cache is new LCA_Cache.T_LCA;
 
     type T_Arguments is
         record
@@ -36,6 +20,12 @@ procedure Routeur_LL is
             est_statistique_active : Boolean := False;
         end record;
 
+
+    --
+    --  Fonctions pour Routage
+    --
+
+
     -- Vérifier que le fichier existe, sinon une exception est levée
     procedure Verifier_Presence_Fichier(filename : in Unbounded_String);
 
@@ -46,15 +36,8 @@ procedure Routeur_LL is
     procedure Traiter_Paquet(paquet : in Unbounded_String;
         table : in T_Table_Routage;
         cache : in out T_Cache;
-        fichier_resultats : in out File_Type);
-
-    -- Supprime du cache en fonction de la politique
-    procedure Supprimer_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; route : in T_Route);
-
-    -- Met a jour le nombre d'utilisation du cache
-    procedure Mise_A_Jour_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; ip : in IP_Adresse);
-
-
+        fichier_resultats : in out File_Type;
+        Arguments : in T_Arguments);
 
     --
     -- Implémentations
@@ -71,7 +54,8 @@ procedure Routeur_LL is
         paquet : in Unbounded_String;
         table : in T_Table_Routage;
         cache : in out T_Cache;
-        fichier_resultats : in out File_Type)
+        fichier_resultats : in out File_Type;
+        Arguments : in T_Arguments)
     is
         interface_trouvee : Unbounded_String;
         ip : IP_Adresse;
@@ -81,6 +65,13 @@ procedure Routeur_LL is
         if To_String(interface_trouvee) /= "" then
             Put(fichier_resultats, paquet & " " & interface_trouvee);
             New_Line(fichier_resultats);
+        end if;
+        -- enregistrer dans le cache
+        -- Suppression si cache en excès
+        if Taille(Cache) > Arguments.cache_taille then
+            Supprimer_Cache(cache, Arguments.cache_politique);
+        else
+            null;
         end if;
     end Traiter_Paquet;
 
@@ -98,42 +89,6 @@ procedure Routeur_LL is
                 raise Fichier_Introuvable_Error;
         end;
     end Verifier_Presence_Fichier;
-
-    procedure Supprimer_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; route : in T_Route) is
-    begin
-        case politique is
-            when FIFO =>
-                Supprimer(cache, Element(cache));
-            when LRU => 
-                Supprimer(cache, Element(cache));
-            when LFU =>
-                null;
-        end case;
-    end Supprimer_Cache;
-
-    procedure Mise_A_Jour_Cache(cache : in out T_Cache; politique : in T_Cache_Politique; ip : in IP_Adresse) is
-        curseur : T_Cache;
-        cellule : T_Cache_Cellule;
-    begin
-        curseur := cache;
-        while not Est_Vide(curseur) loop
-            if Element(curseur).ip = ip then
-                -- Incrémentation du nombre d'utilisation,
-                -- Remet en avant la route si le mode LRU
-                cellule := Element(curseur);
-                if politique = LRU then
-                    Supprimer(cache, cellule);
-                    cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-                    Enregistrer(cache, cellule);
-                else 
-                    cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-                end if;
-            else
-                null;
-            end if;
-            curseur := Suivant(curseur);
-        end loop;
-    end Mise_A_Jour_Cache;
 
     Arguments : T_Arguments;
     fichier_table : File_Type;
@@ -161,8 +116,21 @@ begin
         elsif Argument(i) = "-r" then
             Verifier_Prochain_Argument(i, Argument_Count);
             Arguments.nom_resultats := To_Unbounded_String(Argument(i+1));
+        elsif Argument(i) = "-c" then
+            Verifier_Prochain_Argument(i, Argument_Count);
+            Arguments.cache_taille := Integer'Value(Argument(i+1));
+        elsif Argument(i) = "-p" then
+            Verifier_Prochain_Argument(i, Argument_Count);
+            Arguments.cache_politique := String_Vers_Politique(To_Unbounded_String(Argument(i+1)));
+        elsif Argument(i) = "-s" then
+            Verifier_Prochain_Argument(i, Argument_Count);
+            Arguments.est_statistique_active := True;
+        elsif Argument(i) = "-S" then
+            Verifier_Prochain_Argument(i, Argument_Count);
+            Arguments.est_statistique_active := False;
         end if;
     end loop;
+
 
     -- preparer le fichier résultats
     Create(fichier_resultats, Out_File, To_String(Arguments.nom_resultats));
@@ -182,7 +150,7 @@ begin
     begin
         loop
             ligne := Get_Line(fichier_paquets);
-            Traiter_Paquet(ligne, table, cache, fichier_resultats);
+            Traiter_Paquet(ligne, table, cache, fichier_resultats, Arguments);
             exit when End_Of_File(fichier_paquets);
         end loop;
     exception
