@@ -17,7 +17,13 @@ procedure Routeur_LL is
             nom_resultats : Unbounded_String := To_Unbounded_String("resultats.txt");
             cache_taille : Integer := 10;
             cache_politique : T_Cache_Politique := FIFO;
-            est_statistique_active : Boolean := False;
+            est_statistique_active : Boolean := True;
+        end record;
+
+    type T_Stat is
+        record
+            cache_erreur : Integer := 0;
+            route_total : Integer := 0;
         end record;
 
 
@@ -37,11 +43,16 @@ procedure Routeur_LL is
         table : in T_Table_Routage;
         cache : in out T_Cache;
         fichier_resultats : in out File_Type;
-        Arguments : in T_Arguments);
+        Arguments : in T_Arguments;
+        Statistiques : in out T_Stat);
 
     procedure Effectuer_Action(ligne : in Unbounded_String;
         table : in T_Table_Routage;
-        cache : in T_Cache);
+        cache : in T_Cache;
+        stat : in T_Stat;
+        num : in Integer);
+
+    procedure Afficher_Statistiques(stat : in T_Stat);
 
     --
     -- Implémentations
@@ -59,15 +70,14 @@ procedure Routeur_LL is
         table : in T_Table_Routage;
         cache : in out T_Cache;
         fichier_resultats : in out File_Type;
-        Arguments : in T_Arguments)
+        Arguments : in T_Arguments;
+        Statistiques : in out T_Stat)
     is
         route_t : T_Route;
         ip : IP_Adresse;
         route_dans_cache : Boolean := False;
         ip_valide : Boolean := True;
     begin
-        -- Vérifie d'abord que la ligne est une action 
-        Effectuer_Action(paquet, table, cache);
 
         -- Conversion en ip, sensible et nécéssite de respecter
         -- nombreuses pré-conditions
@@ -78,6 +88,7 @@ procedure Routeur_LL is
         end;
 
         if ip_valide then
+            Statistiques.route_total := Statistiques.route_total + 1;
             -- Recherche dans le cache
             begin
                 Chercher_Cache(route_t, cache, ip);
@@ -90,6 +101,7 @@ procedure Routeur_LL is
 
             -- Recherche dans la table
             if not route_dans_cache then
+                Statistiques.cache_erreur := Statistiques.cache_erreur + 1;
                 begin
                     Find_Interface(route_t, ip, table);
                     Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
@@ -125,22 +137,46 @@ procedure Routeur_LL is
 
     procedure Effectuer_Action(ligne : in Unbounded_String;
         table : in T_Table_Routage;
-        cache : in T_Cache) is
+        cache : in T_Cache;
+        stat : in T_Stat;
+        num : in Integer) is
     begin
         if To_String(ligne) = "table" then
+            Put_Line("table (ligne " & Integer'Image(num) & ")");
             Afficher_Table(table);
+            new_line;
         elsif To_String(ligne) = "cache" then
+            Put_Line("cache (ligne " & Integer'Image(num) & ")");
             Afficher_Cache(cache);
+            new_line;
+        elsif To_String(ligne) = "fin" then
+            Put_Line("fin (ligne " & Integer'Image(num) & ")");
+            raise Shutdown;
+        elsif To_String(ligne) = "stat" then
+            Put_Line("stat (ligne " & Integer'Image(num) & ")");
+            Afficher_Statistiques(stat);
+            new_line;
         end if;
     end Effectuer_Action;
 
+    procedure Afficher_Statistiques(stat : in T_Stat) is
+        taux_defaut : Float;
+    begin
+        Put_Line("Nombre de défaut de cache : " & Integer'Image(stat.cache_erreur));
+        Put_Line("Nombre total de route : " & Integer'Image(stat.route_total));
+        taux_defaut := Float(stat.cache_erreur)/Float(stat.route_total);
+        Put_Line("Taux de défaut de cache : " & Float'Image(taux_defaut));
+    end Afficher_Statistiques;
+
     Arguments : T_Arguments;
+    Statistiques : T_Stat;
     fichier_table : File_Type;
     fichier_resultats : File_Type;
     fichier_paquets : File_Type;
     ligne : Unbounded_String;
     table : T_Table_Routage;
     cache : T_Cache;
+    ligne_numero : Integer := 1;
 
 begin
 
@@ -194,7 +230,9 @@ begin
     begin
         loop
             ligne := Get_Line(fichier_paquets);
-            Traiter_Paquet(ligne, table, cache, fichier_resultats, Arguments);
+            Effectuer_Action(ligne, table, cache, Statistiques, ligne_numero);
+            Traiter_Paquet(ligne, table, cache, fichier_resultats, Arguments, Statistiques);
+            ligne_numero := ligne_numero + 1;
             exit when End_Of_File(fichier_paquets);
         end loop;
     exception
@@ -213,6 +251,12 @@ begin
     -- détruire la table de routage
     Detruire_Table(table);
 
+    if Arguments.est_statistique_active then
+        Afficher_Statistiques(Statistiques);
+    else
+        null;
+    end if;
+
 exception
     when Fichier_Introuvable_Error =>
         Put_Line("Vérifier que les fichiers en arguments existent : " &
@@ -221,4 +265,10 @@ exception
         Put_Line("Arguments incorrects");
     when Duplicate_Route_Error =>
         Put_Line("La table de routage contient des routes en doublons");
+    when Shutdown =>
+        if Arguments.est_statistique_active then
+            Afficher_Statistiques(Statistiques);
+        else
+            null;
+        end if;
 end Routeur_LL;

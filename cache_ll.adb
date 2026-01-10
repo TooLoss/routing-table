@@ -55,12 +55,13 @@ package body Cache_LL is
         masque_cache : IP_Adresse;
         interface_cache : Unbounded_String;
     begin
+        cursor := cache;
         while not Est_Vide(cursor) loop
             ip_cache := Element(cursor).ip;
             masque_cache := Element(cursor).masque;
             interface_cache := Element(cursor).interface_route;
 
-            if (ip and masque_cache) = (ip_cache and masque_cache) then
+            if (ip and masque_cache) = (ip_cache) then
                 if masque_cache > masque_max then
                     masque_max := masque_cache;
                     interface_return := interface_cache;
@@ -133,6 +134,7 @@ package body Cache_LL is
         -- Si l'IP n'est pas dans le cache, on l'ajoute
         if not ip_trouvee then
             cellule.ip := ip_masque;
+            cellule.masque := masque;
             cellule.nombre_utilisations := 1;
             cellule.interface_route := interface_route;
             Enregistrer(cache, cellule);

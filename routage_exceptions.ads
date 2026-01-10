@@ -19,4 +19,7 @@ package Routage_Exceptions is
     -- que de renvoyer une valeur nul par défaut 
     Route_Non_Presente : Exception;
 
+    -- Arrêt du programme
+    Shutdown : Exception;
+
 end Routage_Exceptions;
