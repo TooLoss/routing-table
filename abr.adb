@@ -15,7 +15,7 @@ package body ABR is
     end Est_Vide;
 
     procedure Enregistrer(ABR : in out T_ABR; Element : in T_Element) is
-        nouveau : T_Noeud;
+        nouveau : T_ABR;
     begin
         if Est_Vide(ABR) then
             nouveau := new T_Noeud;
@@ -62,22 +62,22 @@ package body ABR is
     end Remonter;
 
     -- Effectue tout les cas possible pour supprimer correctement
-    procedure Supprimer_Cas(ABR : in out T_ABR, Element : in T_Element) is
+    procedure Supprimer_Cas(ABR : in out T_ABR) is
         to_delete : T_ABR;
-        remplacement : T_ABR;
+        remplacement : T_Element;
     begin
         if Est_Vide(ABR.Gauche) and Est_Vide(ABR.Droite) then
             Free(ABR);
         elsif Est_Vide(ABR.Gauche) then
             to_delete := ABR;
-            ABR := ABR.Gauche;
+            ABR := ABR.Droite;
             Free(to_delete);
         elsif Est_Vide(ABR.Droite) then
             to_delete := ABR;
-            ABR := ABR.Droite;
+            ABR := ABR.Gauche;
             Free(to_delete);
         else
-            Remonter(ABR, remplacement);
+            Remonter(ABR.Gauche, remplacement);
             ABR.Element := remplacement;
         end if;
     end Supprimer_Cas;
@@ -86,7 +86,7 @@ package body ABR is
     begin
         if not Est_Vide(ABR) then
             if Est_Egal(Element, ABR.Element) then
-                Supprimer_Cas(ABR, Element);
+                Supprimer_Cas(ABR);
             elsif Est_Inferieur(Element, ABR.Element) then
                 Supprimer(ABR.Gauche, Element);
             else
