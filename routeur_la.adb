@@ -5,7 +5,7 @@ with Ada.Strings;               use Ada.Strings;
 with Ada.Text_IO.Unbounded_IO;  use Ada.Text_IO.Unbounded_IO;
 with Ada.Command_Line;          use Ada.Command_Line;
 with Routage_Exceptions;        use Routage_Exceptions;
-with Cache_LL;                  use Cache_LL;
+with Cache_LA;                  use Cache_LA;
 
 
 procedure Routeur_LL is
