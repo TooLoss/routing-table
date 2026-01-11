@@ -18,6 +18,7 @@ procedure Routeur_LL is
             cache_taille : Integer := 10;
             cache_politique : T_Cache_Politique := FIFO;
             est_statistique_active : Boolean := True;
+            est_cache_active : Boolean := True;
         end record;
 
     type T_Stat is
@@ -90,14 +91,18 @@ procedure Routeur_LL is
         if ip_valide then
             Statistiques.route_total := Statistiques.route_total + 1;
             -- Recherche dans le cache
-            begin
-                Chercher_Cache(route_t, cache, ip);
-                Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
-                New_Line(fichier_resultats);
-                route_dans_cache := True;
-            exception
-                when Route_Non_Presente => route_dans_cache := False;
-            end;
+            if Arguments.est_cache_active then
+                begin
+                    Chercher_Cache(route_t, cache, ip);
+                    Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
+                    New_Line(fichier_resultats);
+                    route_dans_cache := True;
+                exception
+                    when Route_Non_Presente => route_dans_cache := False;
+                end;
+            else
+                null;
+            end if;
 
             -- Recherche dans la table
             if not route_dans_cache then
@@ -106,11 +111,15 @@ procedure Routeur_LL is
                     Find_Interface(route_t, ip, table);
                     Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
                     New_Line(fichier_resultats);
-                    if Taille_Cache(cache) > Arguments.cache_taille then
-                        Supprimer_Cache(cache, Arguments.cache_politique);
-                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+                    if Arguments.est_cache_active then
+                        if Taille_Cache(cache) > Arguments.cache_taille then
+                            Supprimer_Cache(cache, Arguments.cache_politique);
+                            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+                        else
+                            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+                        end if;
                     else
-                        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+                        null;
                     end if;
                 exception
                     when Route_Non_Presente => null; 
@@ -198,7 +207,13 @@ begin
             Arguments.nom_resultats := To_Unbounded_String(Argument(i+1));
         elsif Argument(i) = "-c" then
             Verifier_Prochain_Argument(i, Argument_Count);
-            Arguments.cache_taille := Integer'Value(Argument(i+1));
+            if Integer'Value(Argument(i+1)) < 0 then
+                raise Argument_Routage_Error;
+            elsif Integer'Value(Argument(i+1)) = 0 then
+                Arguments.est_cache_active := False;
+            else
+                Arguments.cache_taille := Integer'Value(Argument(i+1));
+            end if;
         elsif Argument(i) = "-p" then
             Verifier_Prochain_Argument(i, Argument_Count);
             Arguments.cache_politique := String_Vers_Politique(To_Unbounded_String(Argument(i+1)));
