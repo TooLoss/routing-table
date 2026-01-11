@@ -10,7 +10,7 @@ package Cache_LL is
 
     type T_Cache is limited private;
 
-    -- Procedure surchargé du module LCA. Cree le cache;
+    -- Creer le cache
     procedure Initialiser_Cache(cache : out T_Cache) with
         Post => Taille_Cache(cache) = 0;
 

@@ -87,18 +87,13 @@ package body Cache_LA is
         courant := Cache;
         while not termine and then not Est_Vide(courant) loop
             cellule := Element(courant);
-
             if cellule.ip = ip then
                 cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-
                 if Politique = LRU then
                     cellule.index := Taille(cache) + 1;
                 end if;
-
-                -- Met à jour la valeur
                 Enregistrer(cache, cellule);
                 termine := True;
-
             elsif ip < cellule.ip then
                 courant := Gauche(courant);
             else
@@ -119,8 +114,8 @@ package body Cache_LA is
     begin
         ip_masquee := ip and masque;
 
-        if Route_Existe(cache, ip) then
-            Mettre_A_Jour_Cellule(cache, ip, politique);
+        if Route_Existe(cache, ip_masquee) then
+            Mettre_A_Jour_Cellule(cache, ip_masquee, politique);
         else
             nouvelle_cellule.ip := ip_masquee;
             nouvelle_cellule.masque := masque;
@@ -191,8 +186,8 @@ package body Cache_LA is
                 end case;
             end if;
 
-            Trouver_Candidat_Suppression(Gauche(cache), Politique, Candidat, Trouve);
-            Trouver_Candidat_Suppression(Droite(cache), Politique, Candidat, Trouve);
+            Trouver_Candidat_Suppression(Gauche(cache), politique, candidat, trouve);
+            Trouver_Candidat_Suppression(Droite(cache), politique, candidat, trouve);
         end if;
     end Trouver_Candidat_Suppression;
 
