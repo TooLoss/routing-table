@@ -266,6 +266,7 @@ begin
 
     -- détruire la table de routage
     Detruire_Table(table);
+    Detruire_Cache(cache);
 
     if Arguments.est_statistique_active then
         Afficher_Statistiques(Statistiques);

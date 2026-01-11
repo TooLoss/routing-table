@@ -214,4 +214,10 @@ package body Cache_LA is
         return gauche.ip = droite.ip;
     end Est_Egal_Cellule;
 
+
+    procedure Detruire_Cache(cache : in out T_Cache) is
+    begin
+        Detruire(cache);
+    end Detruire_Cache;
+
 end Cache_LA;

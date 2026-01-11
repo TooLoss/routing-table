@@ -38,6 +38,8 @@ package Cache_LA is
     -- Afficher toutes les routes du cache
     procedure Afficher_Cache(cache : in T_Cache);
 
+    procedure Detruire_Cache(cache : in out T_Cache);
+
     function Est_Inferieur_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean;
 
     function Est_Egal_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean;

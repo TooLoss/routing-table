@@ -137,4 +137,9 @@ package body Cache_LL is
         end loop;
     end;
 
+    procedure Detruire_Cache(cache : in out T_Cache) is
+    begin
+        Detruire(cache);
+    end Detruire_Cache;
+
 end Cache_LL; 
