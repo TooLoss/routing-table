@@ -54,6 +54,8 @@ procedure Routeur_LA is
         num : in Integer);
 
     procedure Afficher_Statistiques(stat : in T_Stat);
+    
+    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments);
 
     --
     -- Implémentations
@@ -78,6 +80,7 @@ procedure Routeur_LA is
         ip : IP_Adresse;
         route_dans_cache : Boolean := False;
         ip_valide : Boolean := True;
+        trouve : Boolean := False;
     begin
 
         -- Conversion en ip, sensible et nécéssite de respecter
@@ -97,6 +100,7 @@ procedure Routeur_LA is
                     Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
                     New_Line(fichier_resultats);
                     route_dans_cache := True;
+                    trouve := True;
                 exception
                     when Route_Non_Presente => route_dans_cache := False;
                 end;
@@ -111,19 +115,17 @@ procedure Routeur_LA is
                     Find_Interface(route_t, ip, table);
                     Put(fichier_resultats, paquet & " " & Get_Interface(route_t));
                     New_Line(fichier_resultats);
-                    if Arguments.est_cache_active then
-                        if Taille_Cache(cache) > Arguments.cache_taille then
-                            Supprimer_Cache(cache, Arguments.cache_politique);
-                            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
-                        else
-                            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
-                        end if;
-                    else
-                        null;
-                    end if;
+                    trouve := True;
                 exception
                     when Route_Non_Presente => null; 
                 end;
+            else
+                null;
+            end if;
+
+            -- Mise à jour du cache
+            if Arguments.est_cache_active and trouve then
+                Mettre_A_Jour_Cache(cache, route_t, Arguments);
             else
                 null;
             end if;
@@ -177,6 +179,16 @@ procedure Routeur_LA is
         taux_defaut := Float(stat.cache_erreur)/Float(stat.route_total);
         Put_Line("Taux de défaut de cache : " & Float'Image(taux_defaut));
     end Afficher_Statistiques;
+
+    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments) is
+    begin
+        if Taille_Cache(cache) > Arguments.cache_taille then
+            Supprimer_Cache(cache, Arguments.cache_politique);
+            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+        else
+            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+        end if;
+    end Mettre_A_Jour_Cache;
 
     Arguments : T_Arguments;
     Statistiques : T_Stat;
