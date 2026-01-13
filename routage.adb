@@ -64,33 +64,50 @@ package body Routage is
 
 
     procedure Find_Interface(route : out T_Route; ip : in IP_Adresse; table : in T_Table_Routage) is
-        curseur_table : T_LCA;
+        curseur : T_LCA;
         route_actuel : T_Route;
-        fit : IP_Adresse;
+        fit : IP_Adresse := 0;
         return_interface : Unbounded_String;
         return_masque : IP_Adresse;
         route_trouvee : Boolean := False;
+
+        masque_cache : IP_Adresse;
+        ip_reference : IP_Adresse;
     begin
-        curseur_table := Premier(T_LCA(table)); 
-        fit := 0;
-        while not Est_Vide(curseur_table) loop
-            route_actuel := Element(curseur_table); 
-            if Est_Valide(ip, route_actuel) and then fit <= route_actuel.Masque then
-                fit := route_actuel.Masque;
-                return_interface := route_actuel.Interface_Route;
-                return_masque := route_actuel.Masque;
-                route_trouvee := True;
-            else
-                null;
+        curseur := Premier(T_LCA(table));
+        while not Est_Vide(curseur) loop
+            route_actuel := Element(curseur);
+            if Est_Valide(ip, route_actuel) then
+                if not route_trouvee or else route_actuel.Masque >= fit then
+                    fit              := route_actuel.Masque;
+                    return_interface := route_actuel.Interface_Route;
+                    return_masque    := route_actuel.Masque;
+                    ip_reference     := route_actuel.Ip;
+                    route_trouvee    := True;
+                end if;
             end if;
-            curseur_table := Suivant(curseur_table);
+            curseur := Suivant(curseur);
         end loop;
-        
+
         if not route_trouvee then
             raise Route_Non_Presente;
         end if;
 
-        Creer_Route(route, ip, return_masque, return_interface);
+        masque_cache := return_masque;
+
+        -- Pour la cohérence du cache
+        curseur := Premier(T_LCA(table));
+        while not Est_Vide(curseur) loop
+            route_actuel := Element(curseur);
+            if (route_actuel.Ip and return_masque) = (ip_reference and return_masque) then
+                if route_actuel.Masque > masque_cache then
+                    masque_cache := route_actuel.Masque;
+                end if;
+            end if;
+            curseur := Suivant(curseur);
+        end loop;
+
+        Creer_Route(route, ip, masque_cache, return_interface);
     end Find_Interface;
 
 

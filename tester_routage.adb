@@ -98,9 +98,8 @@ procedure Tester_Routage is
 
     procedure Test_Find_Interface is
         Table : T_Table_Routage;
-        Route0, Route1 : T_Route;
+        Route0, Route1, Route2 : T_Route;
         Ip1 : IP_Adresse;
-        Interface_Route : Unbounded_String;
     begin
         Ip1 := String_Vers_Ip(To_Unbounded_String("192.168.1.1"));
         Creer_Route(
@@ -118,9 +117,9 @@ procedure Tester_Routage is
         Initialiser_Table(Table);
         Enregistrer_Route(Table, Route0);
         Enregistrer_Route(Table, Route1);
-        Interface_Route := Find_Interface(Ip1, Table);
-        Put(To_String(Interface_Route));
-        pragma Assert(Interface_Route = To_Unbounded_String("eth0"));
+        Find_Interface(Route2, Ip1, Table);
+        Put(To_String(Get_Interface(Route2)));
+        pragma Assert(Get_Interface(Route2) = To_Unbounded_String("eth0"));
     end Test_Find_Interface;
 
     procedure Test_Table_Routage is

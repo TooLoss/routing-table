@@ -22,32 +22,31 @@ package body Cache_LA is
 
 
     procedure Chercher_Cache(route : out T_Route; cache : in T_Cache; ip : in IP_Adresse) is
-        Courant : T_Cache := cache;
-        Cellule : T_Cache_Cellule;
+        Courant : T_Cache;
+        Dernier_Candidat : T_Cache_Cellule;
+        Trouve : Boolean := False;
         Bit : Integer;
     begin
         Courant := cache;
         for i in reverse 0 .. 31 loop
             if not Est_Vide(Courant) then
+                if Element(Courant).interface_route /= Null_Unbounded_String then
+                    -- Cela signifie qu'on à trouvé une IP masquée en cours
+                    Dernier_Candidat := Element(Courant);
+                    Trouve := True;
+                end if;
                 Bit := Obtenir_Bit(ip, i);
-                if Bit = 0 or Est_Vide(Droite(Courant)) then
-                    -- Si à droite est nul, c'est que la suite est peut-être masqué
-                    if Est_Vide(Gauche(Courant)) then
-                        raise Route_Non_Presente;
-                    end if;
+                if Bit = 0 then
                     Courant := Gauche(Courant);
                 else
                     Courant := Droite(Courant);
                 end if;
-            else
-                null;
             end if;
         end loop;
-        if not Est_Vide(Courant) then
-            Cellule := Element(Courant);
-            Creer_Route(route, Cellule.ip, Cellule.masque, Cellule.interface_route);
+        if Trouve then
+            Creer_Route(route, Dernier_Candidat.ip, Dernier_Candidat.masque, Dernier_Candidat.interface_route);
         else
-            raise Route_Non_Presente; 
+            raise Route_Non_Presente;
         end if;
     end Chercher_Cache;
 
@@ -102,7 +101,8 @@ package body Cache_LA is
         cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
 
         if politique = LRU then
-            cellule.index := Taille_Cache(cache) + 1;
+            Compteur_Ticket := Compteur_Ticket + 1;
+            cellule.index := Compteur_Ticket;
         end if;
 
         Enregistrer(cache, cellule.ip, cellule);
@@ -123,7 +123,8 @@ package body Cache_LA is
             Nouvelle_Cellule.masque := masque;
             Nouvelle_Cellule.interface_route := interface_route;
             Nouvelle_Cellule.nombre_utilisations := 1;
-            Nouvelle_Cellule.index := Taille_Cache(cache) + 1;
+            Compteur_Ticket := Compteur_Ticket + 1;
+            Nouvelle_Cellule.index := Compteur_Ticket;
             Enregistrer(cache, IP_Masquee, Nouvelle_Cellule);
         else
             Mettre_A_Jour_Cellule(cache, IP_Masquee, politique);
@@ -131,21 +132,23 @@ package body Cache_LA is
     end Enregistrer_Cache;
 
 
-    function Compter_Routes(Arbre : in T_Cache; Profondeur : in Integer) return Integer is
+    function Compter_Routes(Arbre : in T_Cache) return Integer is
+        Compte : Integer;
     begin
         if Est_Vide(Arbre) then
             return 0;
-        elsif Profondeur = 32 then
-            return 1;
-        else
-            return Compter_Routes(Gauche(Arbre), Profondeur + 1) +
-            Compter_Routes(Droite(Arbre), Profondeur + 1);
         end if;
+        if Element(Arbre).interface_route /= Null_Unbounded_String then
+            Compte := 1;
+        else
+            Compte := 0;
+        end if;
+        return Compte + Compter_Routes(Gauche(Arbre)) + Compter_Routes(Droite(Arbre));
     end Compter_Routes;
 
     function Taille_Cache(cache : in T_Cache) return Integer is
     begin
-        return Compter_Routes(cache, 0);
+        return Compter_Routes(cache);
     end Taille_Cache;
 
 

@@ -184,10 +184,10 @@ procedure Routeur_LA is
     begin
         if Taille_Cache(cache) >= Arguments.cache_taille then
             Supprimer_Cache(cache, Arguments.cache_politique);
-            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
         else
-            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+            null;
         end if;
+        Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
     end Mettre_A_Jour_Cache;
 
     Arguments : T_Arguments;

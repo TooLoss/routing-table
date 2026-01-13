@@ -10,6 +10,8 @@ package Cache_LA is
 
     type T_Cache is limited private;
 
+    Compteur_Ticket : Integer := 0;
+
     -- Creer le cache
     procedure Initialiser_Cache(cache : out T_Cache) with
         Post => Taille_Cache(cache) = 0;
