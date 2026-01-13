@@ -75,7 +75,7 @@ package body Routage is
         fit := 0;
         while not Est_Vide(curseur_table) loop
             route_actuel := Element(curseur_table); 
-            if Est_Valide(ip, route_actuel) and then fit < route_actuel.Masque then
+            if Est_Valide(ip, route_actuel) and then fit <= route_actuel.Masque then
                 fit := route_actuel.Masque;
                 return_interface := route_actuel.Interface_Route;
                 return_masque := route_actuel.Masque;

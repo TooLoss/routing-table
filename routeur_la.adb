@@ -182,7 +182,7 @@ procedure Routeur_LA is
 
     procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments) is
     begin
-        if Taille_Cache(cache) > Arguments.cache_taille then
+        if Taille_Cache(cache) >= Arguments.cache_taille then
             Supprimer_Cache(cache, Arguments.cache_politique);
             Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
         else

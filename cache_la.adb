@@ -25,7 +25,6 @@ package body Cache_LA is
         Courant : T_Cache := cache;
         Cellule : T_Cache_Cellule;
         Bit : Integer;
-        Trouve : Boolean := False;
     begin
         Courant := cache;
         for i in reverse 0 .. 31 loop
@@ -55,7 +54,6 @@ package body Cache_LA is
 
     function Route_Existe(cache : in T_Cache; ip : in IP_Adresse) return Boolean is
         Courant : T_Cache;
-        Present : Boolean := True;
     begin
         Courant := cache;
         for i in reverse 0 .. 31 loop
@@ -157,8 +155,10 @@ package body Cache_LA is
         if not Est_Vide(ABR) then
             Afficher_Recursif(Gauche(ABR));
 
-            Creer_Route(route, Element(ABR).ip, Element(ABR).masque, Element(ABR).interface_route);
-            Afficher_Route(route);
+            if Element(ABR).interface_route /= Null_Unbounded_String then
+                Creer_Route(route, Element(ABR).ip, Element(ABR).masque, Element(ABR).interface_route);
+                Afficher_Route(route);
+            end if;
 
             Afficher_Recursif(Droite(ABR));
         end if;

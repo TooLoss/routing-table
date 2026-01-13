@@ -181,13 +181,14 @@ procedure Routeur_LL is
     end Afficher_Statistiques;
 
     procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments) is
+        Masque_32 : constant IP_Adresse := String_Vers_Ip(To_Unbounded_String("255.255.255.0"));
     begin
-        if Taille_Cache(cache) > Arguments.cache_taille then
+        if Taille_Cache(cache) >= Arguments.cache_taille then
             Supprimer_Cache(cache, Arguments.cache_politique);
-            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
         else
-            Enregistrer_Cache(cache, Get_Ip(route_t), Get_Masque(route_t), Get_Interface(route_t), Arguments.cache_politique);
+            null;
         end if;
+        Enregistrer_Cache(cache, Get_Ip(route_t), Masque_32, Get_Interface(route_t), Arguments.cache_politique);
     end Mettre_A_Jour_Cache;
 
     Arguments : T_Arguments;

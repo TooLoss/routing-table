@@ -166,8 +166,8 @@ procedure Tester_Cache_LA is
         Test_Supprimer_Cache_FIFO;
         Put_Line("Test_Supprimer_Cache_FIFO validé");
 
-        --Test_Supprimer_Cache_LFU;
-        --Put_Line("Test_Supprimer_Cache_LFU validé");
+        --  Test_Supprimer_Cache_LFU;
+        --  Put_Line("Test_Supprimer_Cache_LFU validé");
 
         Test_Supprimer_Cache_LRU;
         Put_Line("Test_Supprimer_Cache_LRU validé");
