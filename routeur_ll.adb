@@ -55,7 +55,7 @@ procedure Routeur_LL is
 
     procedure Afficher_Statistiques(stat : in T_Stat);
     
-    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments);
+    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; est_dans_cache : in Boolean; Arguments : in T_Arguments);
 
     --
     -- Implémentations
@@ -125,7 +125,7 @@ procedure Routeur_LL is
 
             -- Mise à jour du cache
             if Arguments.est_cache_active and trouve then
-                Mettre_A_Jour_Cache(cache, route_t, Arguments);
+                Mettre_A_Jour_Cache(cache, route_t, route_dans_cache, Arguments);
             else
                 null;
             end if;
@@ -180,9 +180,9 @@ procedure Routeur_LL is
         Put_Line("Taux de défaut de cache : " & Float'Image(taux_defaut));
     end Afficher_Statistiques;
 
-    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; Arguments : in T_Arguments) is
+    procedure Mettre_A_Jour_Cache(cache : in out T_Cache; route_t : in T_Route; est_dans_cache : in Boolean; Arguments : in T_Arguments) is
     begin
-        if Taille_Cache(cache) >= Arguments.cache_taille then
+        if Taille_Cache(cache) >= Arguments.cache_taille and not est_dans_cache then
             Supprimer_Cache(cache, Arguments.cache_politique);
         else
             null;
