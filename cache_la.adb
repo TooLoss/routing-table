@@ -21,57 +21,55 @@ package body Cache_LA is
     end String_Vers_Politique;
 
 
-    -- Fonction qui parcours l'abre pour trouver la route qui correspond à l'IP récursivement
-    procedure Trouver_Route(cache : in T_Cache; ip : in IP_Adresse; masque_max : in out IP_Adresse; interface_return : in out Unbounded_String; trouve : in out Boolean) is
-        cellule : T_Cache_Cellule;
-    begin
-        if not Est_Vide(cache) then
-            cellule := Element(cache);
-            if (ip and cellule.masque) = cellule.ip then
-                if cellule.masque >= masque_max then
-                    masque_max := cellule.masque;
-                    interface_return := cellule.interface_route;
-                    trouve := True;
-                end if;
-            end if;
-
-            if cellule.ip > ip then
-                Trouver_Route(Gauche(cache), ip, masque_max, interface_return, trouve);
-            else
-                Trouver_Route(Droite(cache), ip, masque_max, interface_return, trouve);
-            end if;
-        else
-            null;
-        end if;
-    end Trouver_Route;
-
-
     procedure Chercher_Cache(route : out T_Route; cache : in T_Cache; ip : in IP_Adresse) is
-        masque_max : IP_Adresse := 0;
-        interface_return : Unbounded_String;
-        route_trouvee : Boolean := False;
+        Courant : T_Cache := cache;
+        Cellule : T_Cache_Cellule;
+        Bit : Integer;
+        Trouve : Boolean := False;
     begin
-        Trouver_Route(cache, ip, masque_max, interface_return, route_trouvee);
-
-        if not Route_Trouvee then
-            raise Route_Non_Presente;
+        Courant := cache;
+        for i in reverse 0 .. 31 loop
+            if not Est_Vide(Courant) then
+                Bit := Obtenir_Bit(ip, i);
+                if Bit = 0 or Est_Vide(Droite(Courant)) then
+                    -- Si à droite est nul, c'est que la suite est peut-être masqué
+                    if Est_Vide(Gauche(Courant)) then
+                        raise Route_Non_Presente;
+                    end if;
+                    Courant := Gauche(Courant);
+                else
+                    Courant := Droite(Courant);
+                end if;
+            else
+                null;
+            end if;
+        end loop;
+        if not Est_Vide(Courant) then
+            Cellule := Element(Courant);
+            Creer_Route(route, Cellule.ip, Cellule.masque, Cellule.interface_route);
+        else
+            raise Route_Non_Presente; 
         end if;
-
-        Creer_Route(route, ip, Masque_Max, Interface_Return);
     end Chercher_Cache;
 
 
     function Route_Existe(cache : in T_Cache; ip : in IP_Adresse) return Boolean is
+        Courant : T_Cache;
+        Present : Boolean := True;
     begin
-        if Est_Vide(cache) then
-            return False;
-        elsif Element(cache).ip = ip then
-            return True;
-        elsif ip < Element(cache).ip then
-            return Route_Existe(Gauche(cache), ip);
-        else
-            return Route_Existe(Droite(cache), ip);
-        end if;
+        Courant := cache;
+        for i in reverse 0 .. 31 loop
+            if not Est_Vide(Courant) then
+                if Obtenir_Bit(ip, i) = 0 or Est_Vide(Droite(Courant)) then
+                    Courant := Gauche(Courant);
+                else
+                    Courant := Droite(Courant);
+                end if;
+            else
+                null;
+            end if;
+        end loop;
+        return not Est_Vide(Courant);
     end Route_Existe;
 
 
@@ -80,26 +78,36 @@ package body Cache_LA is
         ip: in IP_Adresse;
         politique : in T_Cache_Politique)
     is
-        cellule : T_Cache_Cellule;
         courant : T_Cache;
-        termine : Boolean := False;
+        cellule : T_Cache_Cellule;
+        Bit : Integer;
     begin
-        courant := Cache;
-        while not termine and then not Est_Vide(courant) loop
-            cellule := Element(courant);
-            if cellule.ip = ip then
-                cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
-                if Politique = LRU then
-                    cellule.index := Taille(cache) + 1;
+        courant := cache;
+        for i in reverse 0 .. 31 loop
+            if not Est_Vide(courant) then
+                Bit := Obtenir_Bit(ip, i);
+                if Bit = 0 or Est_Vide(Droite(courant)) then
+                    courant := Gauche(courant);
+                else
+                    courant := Droite(courant);
                 end if;
-                Enregistrer(cache, cellule);
-                termine := True;
-            elsif ip < cellule.ip then
-                courant := Gauche(courant);
             else
-                courant := Droite(courant);
+                null;
             end if;
         end loop;
+
+        if Est_Vide(courant) then
+            raise Route_Non_Presente;
+        end if;
+
+        cellule := Element(courant);
+        cellule.nombre_utilisations := cellule.nombre_utilisations + 1;
+
+        if politique = LRU then
+            cellule.index := Taille_Cache(cache) + 1;
+        end if;
+
+        Enregistrer(cache, cellule.ip, cellule);
     end Mettre_A_Jour_Cellule;
 
 
@@ -109,29 +117,37 @@ package body Cache_LA is
         interface_route : in Unbounded_String;
         politique : in T_Cache_Politique)
     is
-        ip_masquee : IP_Adresse;
-        nouvelle_cellule : T_Cache_Cellule;
+        Nouvelle_Cellule : T_Cache_Cellule;
+        IP_Masquee : constant IP_Adresse := ip and masque;
     begin
-        ip_masquee := ip and masque;
-
-        if Route_Existe(cache, ip_masquee) then
-            Mettre_A_Jour_Cellule(cache, ip_masquee, politique);
+        if not Route_Existe(cache, IP_Masquee) then
+            Nouvelle_Cellule.ip := IP_Masquee;
+            Nouvelle_Cellule.masque := masque;
+            Nouvelle_Cellule.interface_route := interface_route;
+            Nouvelle_Cellule.nombre_utilisations := 1;
+            Nouvelle_Cellule.index := Taille_Cache(cache) + 1;
+            Enregistrer(cache, IP_Masquee, Nouvelle_Cellule);
         else
-            nouvelle_cellule.ip := ip_masquee;
-            nouvelle_cellule.masque := masque;
-            nouvelle_cellule.interface_route := interface_route;
-            nouvelle_cellule.nombre_utilisations := 1;
-
-            nouvelle_cellule.index := taille(cache) + 1;
-
-            Enregistrer(cache, nouvelle_cellule);
+            Mettre_A_Jour_Cellule(cache, IP_Masquee, politique);
         end if;
     end Enregistrer_Cache;
 
 
+    function Compter_Routes(Arbre : in T_Cache; Profondeur : in Integer) return Integer is
+    begin
+        if Est_Vide(Arbre) then
+            return 0;
+        elsif Profondeur = 32 then
+            return 1;
+        else
+            return Compter_Routes(Gauche(Arbre), Profondeur + 1) +
+            Compter_Routes(Droite(Arbre), Profondeur + 1);
+        end if;
+    end Compter_Routes;
+
     function Taille_Cache(cache : in T_Cache) return Integer is
     begin
-        return Taille(cache);
+        return Compter_Routes(cache, 0);
     end Taille_Cache;
 
 
@@ -155,64 +171,52 @@ package body Cache_LA is
     end Afficher_Cache;
 
 
-    procedure Trouver_Candidat_Suppression(
-        cache : in T_Cache;
-        politique : in T_Cache_Politique;
-        candidat : in out T_Cache_Cellule;
-        trouve : in out Boolean)
+    procedure Trouver_Candidat(
+        Arbre      : in T_Cache;
+        Profondeur : in Integer;
+        Politique  : in T_Cache_Politique;
+        Candidat   : in out T_Cache_Cellule;
+        Trouve     : in out Boolean)
     is
-        cellule : T_Cache_Cellule;
     begin
-        if not Est_Vide(cache) then
-            cellule := Element(cache);
-
-            if not trouve then
-                candidat := cellule;
-                trouve := True;
-            else
-                case politique is
-                    when FIFO | LRU =>
-                        if cellule.index < candidat.index then
-                            candidat := cellule;
-                        else
-                            null;
-                        end if;
-                    when LFU =>
-                        if cellule.nombre_utilisations < candidat.nombre_utilisations then
-                            candidat := cellule;
-                        else
-                            null;
-                        end if;
-                end case;
+        if not Est_Vide(Arbre) then
+            if Profondeur = 32 then
+                if not Trouve then
+                    Candidat := Element(Arbre);
+                    Trouve := True;
+                else
+                    case Politique is
+                        when FIFO | LRU =>
+                            if Element(Arbre).index > 0 and then Element(Arbre).index < Candidat.index then
+                                Candidat := Element(Arbre);
+                            end if;
+                        when LFU =>
+                            if Element(Arbre).nombre_utilisations < Candidat.nombre_utilisations then
+                                Candidat := Element(Arbre);
+                            end if;
+                    end case;
+                end if;
+            end if;
+            if not Est_Vide(Gauche(Arbre)) then
+                Trouver_Candidat(Gauche(Arbre), Profondeur + 1, Politique, Candidat, Trouve);
             end if;
 
-            Trouver_Candidat_Suppression(Gauche(cache), politique, candidat, trouve);
-            Trouver_Candidat_Suppression(Droite(cache), politique, candidat, trouve);
+            if not Est_Vide(Droite(Arbre)) then
+                Trouver_Candidat(Droite(Arbre), Profondeur + 1, Politique, Candidat, Trouve);
+            end if;
         end if;
-    end Trouver_Candidat_Suppression;
+    end Trouver_Candidat;
 
 
     procedure Supprimer_Cache(cache : in out T_Cache; politique : in T_Cache_Politique) is
-        Candidat_A_Supprimer : T_Cache_Cellule;
-        trouve : Boolean := False;
+        Candidat : T_Cache_Cellule;
+        Trouve   : Boolean := False;
     begin
-        Trouver_Candidat_Suppression(cache, politique, Candidat_A_Supprimer, trouve);
-
-        if trouve then
-            Supprimer(cache, Candidat_A_Supprimer);
+        Trouver_Candidat(cache, 0, politique, Candidat, Trouve);
+        if Trouve then
+            Supprimer(cache, Candidat.ip);
         end if;
     end Supprimer_Cache;
-
-
-    function Est_Inferieur_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean is
-    begin
-        return gauche.ip < droite.ip;
-    end Est_Inferieur_Cellule;
-
-    function Est_Egal_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean is
-    begin
-        return gauche.ip = droite.ip;
-    end Est_Egal_Cellule;
 
 
     procedure Detruire_Cache(cache : in out T_Cache) is

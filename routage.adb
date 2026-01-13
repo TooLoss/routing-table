@@ -209,4 +209,9 @@ package body Routage is
         return route.Interface_Route;
     end Get_Interface;
 
+    function Obtenir_Bit (IP : in IP_Adresse; Index : in Integer) return Integer is
+    begin
+        return Integer((IP / 2**Index) mod 2);
+    end Obtenir_Bit;
+
 end Routage;

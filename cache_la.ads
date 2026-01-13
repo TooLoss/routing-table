@@ -1,6 +1,6 @@
 with Ada.Strings.Unbounded;     use Ada.Strings.Unbounded;
 with Routage;                   use Routage;
-with ABR;
+with Trie;
 
 package Cache_LA is
 
@@ -40,10 +40,6 @@ package Cache_LA is
 
     procedure Detruire_Cache(cache : in out T_Cache);
 
-    function Est_Inferieur_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean;
-
-    function Est_Egal_Cellule(gauche : in T_Cache_Cellule; droite : in T_Cache_Cellule) return Boolean;
-
 private
 
     type T_Cache_Cellule is 
@@ -55,11 +51,9 @@ private
             nombre_utilisations : Integer := 0;
         end record;
 
-    package ABR_Cache is
-        new ABR (T_Element => T_Cache_Cellule,
-                 Est_Inferieur => Est_Inferieur_Cellule,
-                 Est_Egal => Est_Egal_Cellule);
+    package Trie_Cache is
+        new Trie (T_Element => T_Cache_Cellule);
 
-    type T_Cache is new ABR_Cache.T_ABR;
+    type T_Cache is new Trie_Cache.T_Trie;
 
 end Cache_LA;

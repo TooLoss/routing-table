@@ -57,6 +57,8 @@ package Routage is
     function Get_Masque(route: T_Route) return IP_Adresse;
     function Get_Interface(route: T_Route) return Unbounded_String;
 
+    function Obtenir_Bit (IP : in IP_Adresse; Index : in Integer) return Integer;
+
 private
 
     -- Valeurs par défauts temporaires pour vérifier l'ivariant de type.
