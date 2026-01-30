@@ -39,7 +39,7 @@ gnatmake -gnatwa -gnata -g ./routeur_ll.adb
 gnatmake -gnatwa -gnata -g ./routeur_la.adb
 ```
 
-## Usage
+## Usage
 
 Run the executable with the following command-line arguments:
 
